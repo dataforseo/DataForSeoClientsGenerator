@@ -1,0 +1,81 @@
+import unittest
+from pydantic import BaseModel
+from dataforseo_client.rest import ApiException
+from dataforseo_client import configuration as dfs_config, api_client as dfs_api_provider
+
+from dataforseo_client.api.{{ ApiName | snakecase }} import {{ ApiName }}
+
+{%- for type in DependentTypes -%}
+from {{ type.Namespace }}.{{ type.ClassName | snakecase }} import {{ type.ClassName }}
+{%- endfor -%}
+
+class {{ ClassName }}(unittest.TestCase):
+
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+{% for operation in Operations %}
+    def test_{{ operation.OperationName }}(self) -> None:
+        {% template Part.FetchExample %}
+    
+            self.assertEqual(response.status_code, 20_000, f"response status code - {response.status_code}")
+            for task in response.tasks:
+                self.assertGreaterEqual(task.status_code, 20_000, f"task status code - {task.status_code}")
+                self.assertLess(task.status_code, 30_000, f"task status code - {task.status_code}")
+    
+            none_fields = check_additional_properties_fields(response)
+            if none_fields:
+                error_message = "\n".join(none_fields)
+                assert not none_fields, error_message
+{% endfor %}
+
+def check_additional_properties_fields(obj, path='', visited=None, basic_types=None):
+    if visited is None:
+        visited = set()
+    if basic_types is None:
+        basic_types = (int, float, str, bool, bytes, type(None))
+    results = []
+
+    if id(obj) in visited:
+        return results
+    visited.add(id(obj))
+
+    if isinstance(obj, basic_types):
+        return results
+
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            new_path = f"{path}[{repr(key)}]" if path else f"[{repr(key)}]"
+            results.extend(check_additional_properties_fields(value, new_path, visited, basic_types))
+    elif isinstance(obj, BaseModel):
+        for attr_name, value in vars(obj).items():
+            new_path = f"{path}.{attr_name}" if path else attr_name
+
+            if attr_name == 'additional_properties' and value is not None and value != {}:
+                results.append(f" '{path}' additional_properties is not empty - {value}")
+            else:
+                results.extend(check_additional_properties_fields(value, new_path, visited, basic_types))
+
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes)):
+        for index, value in enumerate(obj):
+            new_path = f"{path}[{index}]"
+            results.extend(check_additional_properties_fields(value, new_path, visited, basic_types))
+
+    elif hasattr(obj, '__dict__'):
+        for attr_name, value in vars(obj).items():
+            new_path = f"{path}.{attr_name}" if path else attr_name
+
+            if attr_name == 'additional_properties' and value is not None and value != {}:
+                results.append(f" '{path}' additional_properties is not empty - {value}")
+            else:
+                results.extend(check_additional_properties_fields(value, new_path, visited, basic_types))
+    else:
+        pass
+
+    return results
+
+if __name__ == '__main__':
+    unittest.main()

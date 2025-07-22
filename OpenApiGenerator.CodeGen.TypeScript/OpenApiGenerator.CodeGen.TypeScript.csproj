@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenApiGenerator.CodeGen.Core\OpenApiGenerator.CodeGen.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.OpenApi" Version="1.6.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\Class.API.liquid" />
+      <None Remove="Templates\Class.DTO.liquid" />
+      <None Remove="Templates\Part.CallEndpoint.liquid" />
+      <None Remove="Templates\Class.ApiException.liquid" />
+      <None Remove="StaticFiles\ApiException.ts" />
+      <EmbeddedResource Include="StaticFiles\ApiException.ts" />
+      <None Remove="Templates\Documentation.API.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.API.liquid" />
+      <None Remove="Templates\Documentation.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.DTO.liquid" />
+      <None Remove="Templates\Part.ApiOperation.liquid" />
+      <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
+      <None Remove="Templates\Part.FetchExample.liquid" />
+      <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Test.API.liquid" />
+      <EmbeddedResource Include="Templates\Test.API.liquid" />
+      <None Remove="Templates\Code.API.liquid" />
+      <EmbeddedResource Include="Templates\Code.API.liquid" />
+      <None Remove="Templates\Code.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Code.DTO.liquid" />
+      <None Remove="Templates\Resource.PackageJson.liquid" />
+      <EmbeddedResource Include="Templates\Resource.PackageJson.liquid" />
+      <None Remove="StaticFiles\tsconfig.json" />
+      <None Remove="StaticFiles\jest.config.js" />
+      <None Remove="StaticFiles\README.md" />
+      <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="StaticFiles\tsconfig.cjs.json" />
+      <None Remove="StaticFiles\tsconfig.esm.json" />
+      <None Remove="Templates\Code.Index.liquid" />
+      <EmbeddedResource Include="Templates\Code.Index.liquid" />
+      <None Remove="StaticFiles\tsconfig.base.json" />
+      <EmbeddedResource Include="StaticFiles\tsconfig.base.json" />
+      <None Remove="StaticFiles\jest.config.cjs" />
+      <EmbeddedResource Include="StaticFiles\jest.config.cjs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="StaticFiles\tsconfig.cjs.json" />
+      <EmbeddedResource Include="StaticFiles\tsconfig.esm.json" />
+    </ItemGroup>
+
+</Project>

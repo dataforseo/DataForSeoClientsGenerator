@@ -1,0 +1,67 @@
+# {{ ClassName }}
+
+All URIs are relative to *https://api.dataforseo.com*
+
+| Method | HTTP request | Description |
+|------------- | ------------- | -------------|
+{%- for operation in Operations -%}
+[**{{ operation.OperationName | camelcase }}**]({{ ClassName }}.md#{{ operation.OperationName | camelcase }}) | **{{ operation.HttpMethod }}**  {{ operation.Path }}  |
+{%- endfor -%}
+
+{%- for operation in Operations -%}
+<a id="{{ operation.OperationName | camelcase }}"></a>
+# **{{ operation.OperationName | camelcase }}**
+> {{ operation.ResponseType.TypeName }} {{ operation.OperationName | camelcase }}({{ operation.RequestName }})
+
+{{ operation.Description }}
+### Example
+```python
+from dataforseo_client import configuration as dfs_config, api_client as dfs_api_provider
+from dataforseo_client.api.{{ operation.ApiName | snakecase }} import {{ operation.ApiName }}
+from dataforseo_client.rest import ApiException
+{%- if operation.HttpMethod == "POST" and operation.RequestType != null -%}
+from dataforseo_client.models.{{ operation.RequestType.TypeName | snakecase }} import {{ operation.RequestType.TypeName }}
+{%- endif -%}
+
+from pprint import pprint
+try:
+    {% template Part.FetchExample %}
+except ApiException as e:
+    print("Exception: %s\n" % e)
+```
+
+### Parameters
+{% if operation.HttpMethod == "POST" %}
+    | Name | Type | Description  | Notes |
+    |------------- | ------------- | ------------- | -------------|
+    | **{{ operation.RequestName }}** | [**List&lt;{{ operation.RequestType.TypeName }}&gt;**]({{ operation.RequestType.TypeName }}.md)|  | [optional] |
+{% endif %}
+{% if operation.HttpMethod == "GET" %}
+    {% if operation.RequestName == null %}
+        This endpoint does not need any parameter.
+    {% else %}
+        | Name | Type | Description  | Notes |
+        |------------- | ------------- | ------------- | -------------|
+        | **{{ operation.RequestName }}** | **{{ operation.RequestType.TypeName }}**| {{ operation.Description }} | |
+    {% endif %}
+{% endif %}
+
+### Return type
+
+[**{{ operation.ResponseType.TypeName }}**]({{ operation.ResponseType.TypeName }}.md)
+
+### Authorization
+
+[basicAuth](../README.md#basicAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful operation |  -  |
+
+{%- endfor -%}

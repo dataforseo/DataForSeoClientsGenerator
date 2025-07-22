@@ -1,0 +1,50 @@
+{
+  "name": "dataforseo-client",
+  "version": "{{ Version }}",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "description": "API client that provide services of DataForSeo API \n\n For more information about client code generation, please follow to github",
+  "scripts": {
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "npm run build:esm && npm run build:cjs",
+    "test": "jest --verbose"
+  },
+  "files":[
+    "dist",
+    "README.md",
+    "package.json",
+    "tsconfig.base.json",
+    "tsconfig.esm.json",
+    "tsconfig.cjs.json"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./models": {
+      "import": "./dist/esm/models/index.js",
+      "require": "./dist/cjs/models/index.js"
+    },
+    "./api": {
+      "import": "./dist/esm/api/index.js",
+      "require": "./dist/cjs/api/index.js"
+    }
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataforseo/TypeScriptClient.git"
+  },
+  "author": "dataforseo",
+  "license": "ISC",
+  "homepage": "https://github.com/dataforseo/TypeScriptClient#readme"
+}

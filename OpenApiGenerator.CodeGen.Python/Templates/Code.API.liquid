@@ -1,0 +1,24 @@
+import warnings
+from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
+from typing import Any, Dict, List, Optional, Tuple, Union
+from typing_extensions import Annotated
+from typing import List, Optional
+
+{%- for type in DependentTypes -%}
+from {{ type.Namespace }}.{{ type.ClassName | snakecase }} import {{ type.ClassName }}
+{%- endfor -%}
+
+from dataforseo_client.api_client import ApiClient, RequestSerialized
+from dataforseo_client.api_response import ApiResponse
+from dataforseo_client.rest import RESTResponseType
+
+class {{ ClassName }}:
+
+    def __init__(self, api_client=None) -> None:
+        if api_client is None:
+            api_client = ApiClient.get_default()
+        self.api_client = api_client
+
+{% for operation in Operations %}
+    {% template Part.ApiOperation %}
+{% endfor %}

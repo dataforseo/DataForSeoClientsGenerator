@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.Core", "OpenApiGenerator.CodeGen.Core\OpenApiGenerator.CodeGen.Core.csproj", "{EF9A5D4C-EB61-43DB-8E49-BB6CE218A192}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.CSharp", "OpenApiGenerator.CodeGen.CSharp\OpenApiGenerator.CodeGen.CSharp.csproj", "{57429B77-36C4-4973-9D40-89F3594AE498}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.Java", "OpenApiGenerator.CodeGen.Java\OpenApiGenerator.CodeGen.Java.csproj", "{75D7F1D3-36FD-480C-B98A-6C8419653A49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.Python", "OpenApiGenerator.CodeGen.Python\OpenApiGenerator.CodeGen.Python.csproj", "{7F3C24A5-0C71-48A2-B808-300F90807460}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.Utils", "OpenApiGenerator.Utils\OpenApiGenerator.Utils.csproj", "{B40C47DC-D512-4EF4-8081-3E0F83BAB3EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.TypeScript", "OpenApiGenerator.CodeGen.TypeScript\OpenApiGenerator.CodeGen.TypeScript.csproj", "{67199969-4887-418A-ADA4-9059E8E0E3B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EF9A5D4C-EB61-43DB-8E49-BB6CE218A192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF9A5D4C-EB61-43DB-8E49-BB6CE218A192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF9A5D4C-EB61-43DB-8E49-BB6CE218A192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF9A5D4C-EB61-43DB-8E49-BB6CE218A192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57429B77-36C4-4973-9D40-89F3594AE498}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57429B77-36C4-4973-9D40-89F3594AE498}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57429B77-36C4-4973-9D40-89F3594AE498}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57429B77-36C4-4973-9D40-89F3594AE498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D7F1D3-36FD-480C-B98A-6C8419653A49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D7F1D3-36FD-480C-B98A-6C8419653A49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D7F1D3-36FD-480C-B98A-6C8419653A49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D7F1D3-36FD-480C-B98A-6C8419653A49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F3C24A5-0C71-48A2-B808-300F90807460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F3C24A5-0C71-48A2-B808-300F90807460}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F3C24A5-0C71-48A2-B808-300F90807460}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F3C24A5-0C71-48A2-B808-300F90807460}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B40C47DC-D512-4EF4-8081-3E0F83BAB3EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B40C47DC-D512-4EF4-8081-3E0F83BAB3EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B40C47DC-D512-4EF4-8081-3E0F83BAB3EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B40C47DC-D512-4EF4-8081-3E0F83BAB3EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,48 @@
+var dfsClient = new DataForSeoClient(new DataForSeoClientConfiguration()
+{
+    Username = "{{ operation.Login }}",
+    Password = "{{ operation.Password }}",
+    {%- if operation.ForTests -%}
+    CustomHeaders = new Dictionary<string, string>()
+    {
+        ["X-Sandbox"]= "allow"
+    }
+    {%- endif -%}
+});
+{%- if operation.ForTests -%}
+dfsClient.{{ operation.ApiName }}.BaseUrl = "https://sandbox.dataforseo.com";
+{%- endif -%}
+{%- if operation.HttpMethod == "POST" -%}
+var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async(new List<{{ operation.RequestType.SourceType }}>()
+{
+    new()
+    {
+        {%- for field in operation.Payload -%}
+        {%- if field.Type.StructureType == "Dictionary" -%}
+        {{ field.Name }} = new Dictionary<string, {{ field.Type.Of.TypeName }}>()
+        {
+            {%- for value in field.Type.Value -%}
+            [{{ value.Name }}] = {{ value.Value }},
+            {%- endfor -%}
+        },
+        {%- elsif field.Type.StructureType == "Array" -%}
+        {{ field.Name }} = new List<{{ field.Type.SourceType }}>()
+        {
+            {%- for value in field.Type.Value -%}
+            {{ value.Value }},
+            {%- endfor -%}
+        },
+        {%- else -%}
+        {{ field.Name }} = {{ field.Type.Value[0].Value }},
+        {%- endif -%}
+        {%- endfor -%}
+    }
+}); 
+{%- else -%}
+    {%- if operation.GetParameter != null -%}
+var {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async({{ operation.GetParameter.Name }});
+    {%- else -%}
+var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async();
+    {% endif -%}
+{%- endif -%}

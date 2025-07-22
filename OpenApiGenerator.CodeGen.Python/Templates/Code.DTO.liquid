@@ -1,0 +1,166 @@
+from __future__ import annotations
+import pprint
+import re  # noqa: F401
+import json
+
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, StrictBool
+from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing import Optional, Set, Any, Dict, List
+from typing_extensions import Self
+
+{%- for type in DependentTypes -%}
+from {{ type.Namespace }}.{{ type.ClassName | snakecase }} import {{ type.ClassName }}
+{%- endfor -%}
+{% if Childs and Childs.size > 0 %}
+from importlib import import_module
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    {%- for child in Childs -%}
+    from {{ child.Namespace }}.{{ child.ClassName | snakecase }} import {{ child.ClassName }};
+    {%- endfor -%}
+{% endif %}
+
+
+class {{ ClassName }}({%- if Parent != null and Parent.Childs != null and Parent.Childs.size > 0 -%}{{ ParentName }}{%- else -%}BaseModel{%- endif -%}):
+    """
+    {{ ClassName }}
+    """ # noqa: E501
+{%- for property in Parent.Properties -%}
+    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description="{{ property.Description | pythondocs }}")
+{%- endfor -%}
+{%- for property in Properties -%}
+    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description="{{ property.Description | pythondocs }}")
+{%- endfor -%}
+    __properties: ClassVar[List[str]] = [
+        {%- for property in Parent.Properties -%} 
+        "{{ property.JsonName }}", 
+        {%- endfor -%}
+        {%- for property in Properties -%} 
+        "{{ property.JsonName }}", 
+        {%- endfor -%}
+        ]
+    {%- if IsParent -%}
+    __discriminator_property_name: ClassVar[str] = '{{ DiscriminatorProperty }}'
+    __discriminator_value_class_map: ClassVar[Dict[str, str]] = {
+    {%- for item in Childs -%}
+        '{{ item.DiscriminatorValue }}': '{{ item.ClassName }}',
+    {%- endfor -%}
+    }
+    {%- endif -%}
+
+    additional_properties: Dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
+
+    def to_str(self) -> str:
+        return pprint.pformat(self.model_dump(by_alias=True))
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Optional[Self]:
+        return cls.from_dict(json.loads(json_str))
+
+    def to_dict(self) -> Dict[str, Any]:
+        excluded_fields: Set[str] = set([
+        ])
+
+        _dict = {}
+
+{%- for property in Parent.Properties -%}
+    {%- if property.Type.StructureType == "Object" -%}
+        _dict['{{ property.JsonName }}'] = self.{{ property.Name }}.to_dict() if self.{{ property.Name }} else None
+    {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}
+        {{ property.Name }}_items = []
+        if self.{{ property.Name }}:
+            for _item in self.{{ property.Name }}:
+                if _item:
+                    {{ property.Name }}_items.append(_item.to_dict())
+            _dict['{{ property.JsonName }}'] = {{ property.Name }}_items
+    {%- else -%}  
+        _dict['{{ property.JsonName }}'] = self.{{ property.Name }}
+    {%- endif -%}
+{%- endfor -%}
+{%- for property in Properties -%}
+    {%- if property.Type.StructureType == "Object" -%}
+        _dict['{{ property.JsonName }}'] = self.{{ property.Name }}.to_dict() if self.{{ property.Name }} else None
+    {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}
+        {{ property.Name }}_items = []
+        if self.{{ property.Name }}:
+            for _item in self.{{ property.Name }}:
+                if _item:
+                    {{ property.Name }}_items.append(_item.to_dict())
+            _dict['{{ property.JsonName }}'] = {{ property.Name }}_items
+    {%- else -%}  
+        _dict['{{ property.JsonName }}'] = self.{{ property.Name }}
+    {%- endif -%}
+{%- endfor -%}
+        return _dict
+
+{%- if Childs == null or Childs.size == 0 -%}
+
+    @classmethod
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
+        if obj is None:
+            return None
+
+        if not isinstance(obj, dict):
+            return cls.model_validate(obj)
+
+        _obj = cls.model_validate({
+    {%- for property in Parent.Properties -%}
+        {%- if property.Type.StructureType == "Object" -%}
+            "{{ property.Name }}": {{ property.Type.TypeName }}.from_dict(obj["{{ property.JsonName }}"]) if obj.get("{{ property.Name }}") is not None else None,
+        {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}  
+            "{{ property.Name }}": [{{ property.Type.Of.TypeName }}.from_dict(_item) for _item in obj["{{ property.JsonName }}"]] if obj.get("{{ property.Name }}") is not None else None,
+        {%- else -%}    
+            "{{ property.Name }}": obj.get("{{ property.JsonName }}"),
+        {%- endif -%}
+    {%- endfor -%}
+    {%- for property in Properties -%}
+        {%- if property.Type.StructureType == "Object" -%}
+            "{{ property.Name }}": {{ property.Type.TypeName }}.from_dict(obj["{{ property.JsonName }}"]) if obj.get("{{ property.Name }}") is not None else None,
+        {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}  
+            "{{ property.Name }}": [{{ property.Type.Of.TypeName }}.from_dict(_item) for _item in obj["{{ property.JsonName }}"]] if obj.get("{{ property.Name }}") is not None else None,
+        {%- else -%}    
+            "{{ property.Name }}": obj.get("{{ property.JsonName }}"),
+        {%- endif -%}
+    {%- endfor -%}
+        })
+
+        additional_properties = {k: v for k, v in obj.items() if k not in cls.__properties}
+        _obj.additional_properties = additional_properties
+        return _obj
+{%- else -%}
+
+    @classmethod
+    def get_discriminator_value(cls, obj: Dict[str, Any]) -> Optional[str]:
+        discriminator_value = obj[cls.__discriminator_property_name]
+        if discriminator_value:
+            return cls.__discriminator_value_class_map.get(discriminator_value)
+        else:
+            return None
+    
+    @classmethod
+    def from_dict(cls, obj: Dict[str, Any]) -> Optional[Union[
+    {%- for child in Childs -%}
+        {{ child.ClassName }}{% if forloop.last == false %}, {% endif %}
+    {%- endfor -%}
+    ]]:
+        # look up the object type based on discriminator mapping
+        object_type = cls.get_discriminator_value(obj)
+        
+        {%- for child in Childs -%}
+        if object_type == '{{ child.ClassName }}':
+            return import_module("{{ child.Namespace }}.{{ child.ClassName | snakecase }}").{{ child.ClassName }}.from_dict(obj)
+        {%- endfor -%}
+
+        raise ValueError("BaseSerpElementItem failed to lookup discriminator value from " +
+                         json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
+                         ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
+{%- endif -%}

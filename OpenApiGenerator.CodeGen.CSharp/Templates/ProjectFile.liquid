@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>DataForSeo.Client</PackageId>
+        <Authors>DataForSeo</Authors>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <Description>API client that provide services of DataForSeo API. For more information about client code generation, please follow to github
+        </Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/dataforseo/CSharpClient</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/dataforseo/CSharpClient</PackageProjectUrl>
+        <RootNamespace>DataForSeo.Client</RootNamespace>
+        <Version>{{ Version }}</Version>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="README.md" Pack="true" PackagePath="">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+</Project>

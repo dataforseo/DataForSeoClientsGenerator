@@ -1,0 +1,44 @@
+using DataForSeo.Client.Api;
+using System.Collections.Generic;
+
+namespace {{ Namespace }}
+{
+    public class DataForSeoClient
+    {
+        private System.Net.Http.HttpClient _client;
+
+{%- for api in ApiList -%}
+        public {{ api }} {{ api }} { get; }
+{%- endfor -%}
+
+        public DataForSeoClient(DataForSeoClientConfiguration configuration) : base()
+        {
+            _client = new System.Net.Http.HttpClient(new System.Net.Http.HttpClientHandler { AutomaticDecompression = System.Net.DecompressionMethods.GZip, MaxConnectionsPerServer = 1000 });
+            _client.Timeout = System.TimeSpan.FromMinutes(1);
+
+            _client.DefaultRequestHeaders.UserAgent.ParseAdd("csharp-client/{{ Version }}");
+            if (configuration.CustomHeaders != null)
+            {
+                foreach (var header in configuration.CustomHeaders)
+                {
+                    _client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
+
+            _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{configuration.Username}:{configuration.Password}")));
+            _client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
+            
+
+{%- for api in ApiList -%}
+            {{ api }} = new {{ api }}(_client);
+{%- endfor -%}
+        }
+    }
+
+    public class DataForSeoClientConfiguration
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public Dictionary<string, string> CustomHeaders { get; set; }
+    }
+}

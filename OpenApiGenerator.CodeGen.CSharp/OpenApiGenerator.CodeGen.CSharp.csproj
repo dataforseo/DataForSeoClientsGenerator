@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>OpenApiGenerator.CodeGen.CSharp</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.OpenApi" Version="1.6.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenApiGenerator.CodeGen.Core\OpenApiGenerator.CodeGen.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\Class.Example.liquid" />
+      <None Remove="Templates\Client.Operation.liquid" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\Class.API.liquid" />
+      <None Remove="Templates\Class.DTO.liquid" />
+      <None Remove="Templates\Part.CallEndpoint.liquid" />
+      <None Remove="Templates\Class.ApiException.liquid" />
+      <None Remove="Templates\Class.JsonInheritanceAttribute.liquid" />
+      <None Remove="Templates\Class.JsonInheritanceConverter.liquid" />
+      <None Remove="Templates\Class.MainClient.liquid" />
+      <None Remove="Templates\Documentation.API.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.API.liquid" />
+      <None Remove="Templates\Documentation.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.DTO.liquid" />
+      <None Remove="Templates\Part.FetchExample.liquid" />
+      <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Code.API.liquid" />
+      <EmbeddedResource Include="Templates\Code.API.liquid" />
+      <None Remove="Templates\Code.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Code.DTO.liquid" />
+      <None Remove="Templates\Code.MainClient.liquid" />
+      <EmbeddedResource Include="Templates\Code.MainClient.liquid" />
+      <None Remove="Templates\Part.ApiOperation.liquid" />
+      <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
+      <Compile Remove="StaticFiles\ApiException.cs" />
+      <EmbeddedResource Include="StaticFiles\ApiException.cs" />
+      <Compile Remove="StaticFiles\JsonInheritanceAttribute.cs" />
+      <EmbeddedResource Include="StaticFiles\JsonInheritanceAttribute.cs" />
+      <Compile Remove="StaticFiles\JsonInheritanceConverter.cs" />
+      <EmbeddedResource Include="StaticFiles\JsonInheritanceConverter.cs" />
+      <None Remove="Templates\Test.API.liquid" />
+      <EmbeddedResource Include="Templates\Test.API.liquid" />
+      <None Remove="StaticFiles\README.md" />
+      <EmbeddedResource Include="StaticFiles\README.md" />
+      <Compile Remove="StaticFiles\TestHelper.cs" />
+      <EmbeddedResource Include="StaticFiles\TestHelper.cs" />
+      <None Remove="Templates\ProjectFile.liquid" />
+      <EmbeddedResource Include="Templates\ProjectFile.liquid" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="StaticFiles\ClientTestsProject.csproj" />
+    </ItemGroup>
+
+</Project>

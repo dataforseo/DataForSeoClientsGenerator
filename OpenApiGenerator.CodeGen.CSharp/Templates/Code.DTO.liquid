@@ -1,0 +1,36 @@
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using DataForSeo.Client.Models;
+
+namespace {{ Namespace }}
+{
+{%- if IsParent -%}
+    [JsonConverter(typeof(JsonInheritanceConverter), "{{ DiscriminatorProperty }}")]
+    {%- for child in Childs -%}
+    [JsonInheritance("{{ child.DiscriminatorValue }}", typeof({{ child.ClassName }}))]
+    {%- endfor -%}
+{%- endif -%}
+
+    public class {{ ClassName }} {% if ParentName != nulll %} : {{ ParentName }} {% endif %}
+    {
+        {%- for property in Properties -%}
+            {%- if property.Description != null -%}
+
+        /// <summary>
+        /// {{ property.Description | csharpdocs }}
+        /// </summary>
+            {%- endif -%}
+        [JsonProperty("{{ property.JsonName }}", Required = {% if property.IsRequired %}Required.DisallowNull{% else %}Required.Default{% endif %}, NullValueHandling = NullValueHandling.Ignore)]
+        public {{ property.Type.TypeName }} {{ property.Name }} { get; set; }
+        {%- endfor -%}
+
+        private IDictionary<string, object> _additionalProperties;
+
+        [JsonExtensionData]
+        public IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+    }
+}

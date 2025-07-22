@@ -1,0 +1,54 @@
+const username = '{{ operation.Login }}';
+const password = '{{ operation.Password }}';
+
+let api = new {{ operation.ApiName }}("https://{{ operation.Host }}", {
+  fetch: (url: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const token = btoa(`${username}:${password}`);
+    const authHeader = { 'Authorization': `Basic ${token}` };
+
+    const newInit: RequestInit = {
+      ...init,
+      headers: {
+      ...init?.headers,
+      ...authHeader,
+      {%- if operation.UserAgent != null -%}
+      'User-Agent': '{{ operation.UserAgent }}',
+      {%- endif -%}
+      {%- if operation.ForTests != null -%}
+      'X-Sandbox': 'allow',
+      {%- endif -%}
+    }
+  };
+
+  return fetch(url, newInit);
+  }
+});
+
+{%- if operation.HttpMethod == "POST" -%}
+let task = new {{ operation.RequestType.SourceType }}();
+{%- for field in operation.Payload -%}
+  {%- if field.Type.StructureType == "Dictionary" -%}
+  task.{{ field.Name }} = {
+    {%- for value in field.Type.Value -%}
+      {{ value.Name }}: {{ value.Value }},
+    {%- endfor -%}
+  };
+  {%- elsif field.Type.StructureType == "Array" -%}
+  task.{{ field.Name }} = [
+    {%- for value in field.Type.Value -%}
+      {{ value.Value }},
+    {%- endfor -%}
+  ];
+  {%- else -%}
+  task.{{ field.Name }} = {{ field.Type.Value[0].Value }};
+  {%- endif -%}
+{%- endfor -%}
+let response = await api.{{ operation.OperationName }}([task]);
+{%- else -%}
+  {%- if operation.GetParameter != null -%}
+let {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+let response = await api.{{ operation.OperationName }}({{ operation.GetParameter.Name }});
+  {%- else -%}
+let response = await api.{{ operation.OperationName }}();
+  {%- endif -%}
+{%- endif -%}

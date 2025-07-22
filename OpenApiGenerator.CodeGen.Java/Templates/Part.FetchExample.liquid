@@ -1,0 +1,50 @@
+ApiClient defaultClient = Configuration.getDefaultApiClient();
+defaultClient.setBasePath("https://{{ operation.Host }}");
+{%- if operation.UserAgent != null -%}
+defaultClient.setUserAgent("{{ operation.UserAgent }}");
+{%- endif -%}
+{%- if operation.ForTests -%}
+defaultClient.addDefaultHeader("X-Sandbox", "allow");
+{%- endif -%}
+
+
+// Configure HTTP basic authorization: basicAuth
+HttpBasicAuth basicAuth = (HttpBasicAuth) defaultClient.getAuthentication("basicAuth");
+basicAuth.setUsername("{{ operation.Login }}");
+basicAuth.setPassword("{{ operation.Password }}");
+{{ operation.ApiName }} apiInstance = new {{ operation.ApiName }}(defaultClient);
+{%- if operation.HttpMethod == "POST" -%}
+    {%- if operation.RequestType.StructureType == "Array" -%}
+{{ operation.RequestType.Of.TypeName }} model = new {{ operation.RequestType.Of.TypeName }}()
+    {%- else -%}
+{{ operation.RequestType.TypeName }} model = new {{ operation.RequestType.TypeName }}()
+    {%- endif -%}
+    {%- for field in operation.Payload -%}
+        {%- if field.Type.StructureType == "Dictionary" -%}
+   .{{ field.Name }}(
+       Map.ofEntries(
+            {%- for valueInfo in field.Type.Value -%}
+           Map.entry({{ valueInfo.Name }}, {{ valueInfo.Value }}) {% unless forloop.last %},{% endunless %}
+            {%- endfor -%}
+           )){% if forloop.last %};{% endif %}
+        {%- elsif field.Type.StructureType == "Array" -%}
+       .{{ field.Name }}(
+           List.of(
+            {%- for valueInfo in field.Type.Value -%}
+               {{ valueInfo.Value }}{% unless forloop.last -%},{% endunless %}
+            {%- endfor -%}
+            )){% if forloop.last %};{% endif %}
+        {%- else -%}
+       .{{ field.Name }}({{ field.Type.Value[0].Value }}){% if forloop.last %};{% endif %}
+        {%- endif -%}
+    {%- endfor -%}
+{{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}(List.of(model));   
+{%- endif -%}
+{%- if operation.HttpMethod == "GET" -%}
+    {%- if operation.GetParameter != null -%}
+{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+{{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}({{ operation.GetParameter.Name }});   
+    {% else %}
+{{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}(); 
+    {%- endif -%}
+{%- endif -%}

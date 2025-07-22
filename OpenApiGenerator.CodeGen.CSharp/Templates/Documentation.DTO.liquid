@@ -1,0 +1,10 @@
+# {{ ClassName }}
+
+
+## Properties
+
+| Name | Type | Description | Notes |
+|------------ | ------------- | ------------- | -------------|
+{%- for property in Properties -%}
+**{{ property.Name }}** | **{{ property.Type.TypeName }}** | {{ property.Description }} |  {%- if IsRequired -%} [required] {%- else -%} [optional] {%- endif -%} |
+{%- endfor -%}

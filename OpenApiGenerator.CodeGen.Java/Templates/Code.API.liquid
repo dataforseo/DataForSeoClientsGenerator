@@ -1,0 +1,66 @@
+package {{ Namespace }};
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+
+{%- for type in DependentTypes -%}
+import {{ type.Namespace }}.{{ type.ClassName }};
+{%- endfor -%}
+
+import io.github.dataforseo.client.ApiCallback;
+import io.github.dataforseo.client.ApiClient;
+import io.github.dataforseo.client.ApiException;
+import io.github.dataforseo.client.ApiResponse;
+import io.github.dataforseo.client.Configuration;
+import io.github.dataforseo.client.Pair;
+import io.github.dataforseo.client.ProgressRequestBody;
+import io.github.dataforseo.client.ProgressResponseBody;
+
+
+public class {{ ClassName }} {
+    private ApiClient localVarApiClient;
+    private int localHostIndex;
+    private String localCustomBaseUrl;
+
+    public {{ ClassName }}() {
+        this(Configuration.getDefaultApiClient());
+    }
+
+    public {{ ClassName }}(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public ApiClient getApiClient() {
+        return localVarApiClient;
+    }
+
+    public void setApiClient(ApiClient apiClient) {
+        this.localVarApiClient = apiClient;
+    }
+
+    public int getHostIndex() {
+        return localHostIndex;
+    }
+
+    public void setHostIndex(int hostIndex) {
+        this.localHostIndex = hostIndex;
+    }
+
+    public String getCustomBaseUrl() {
+        return localCustomBaseUrl;
+    }
+
+    public void setCustomBaseUrl(String customBaseUrl) {
+        this.localCustomBaseUrl = customBaseUrl;
+    }
+
+{% for operation in Operations %}
+    {% template Part.ApiOperation %}
+{% endfor %}
+
+}

@@ -1,0 +1,129 @@
+
+{%- for type in DependentTypes -%}
+import { {{ type.ClassName }}, I{{ type.ClassName }} } from "./{%- if type.ParentName and type.DiscriminatorValue -%}{{ type.ParentName }}{%- else -%}{{ type.ClassName }}{%- endif -%}";
+{%- endfor -%}
+{% comment %}import { ApiException, throwException } from "./ApiException"{% endcomment %}
+
+export interface I{{ ClassName }} {% if ParentName != nulll %} extends I{{ ParentName }}  {% endif %}  {
+    {%- for property in Properties -%}
+        
+    {%- if property.Description != null -%}
+        /** {{ property.Description }} */
+    {%- endif -%}
+        {{ property.Name }}?: {{ property.Type.TypeName }} | undefined
+    {%- endfor -%}
+
+    [key: string]: any;
+
+    }
+
+export class {{ ClassName }} {% if ParentName != null %} extends {{ ParentName }}  {% endif %} implements I{{ ClassName }} {
+{%- for property in Properties -%}
+{%- if property.Description != null -%}
+    
+    /** {{ property.Description }} */
+{% endif %}
+    {{ property.Name }}?: {{ property.Type.TypeName }} | undefined;
+{%- endfor -%}
+
+    [key: string]: any;
+
+{%- if IsParent %}
+    protected discriminator: string;
+{%- endif -%}
+
+    constructor(data?: I{{ ClassName }}) {
+{%- if ParentName != null -%}
+    super(data);
+{% else %}
+    if (data) {
+        for (var property in data) {
+            if (data.hasOwnProperty(property))
+                (<any>this)[property] = (<any>data)[property];
+        }
+    }
+    {%- if IsParent %}
+    this.discriminator = "BaseSerpElementItem";
+    {%- endif -%}
+{%- endif -%}
+
+    }
+
+    init(data?: any) {
+{%- if ParentName != null -%}
+        super.init(data);
+{%- endif -%}
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    this[property] = data[property];
+            }
+{%- for property in Properties -%}  
+    {%- if property.Type.StructureType == "Object" -%}
+            this.{{ property.Name }} = data["{{ property.JsonName }}"] ? {{ property.Type.TypeName }}.fromJS(data["{{ property.JsonName }}"]) : <any>undefined;
+    {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}
+            if (Array.isArray(data["{{ property.JsonName }}"])) {
+                this.{{ property.Name }} = [];
+                for (let item of data["{{ property.JsonName }}"]) {
+                    this.{{ property.Name }}.push({{ property.Type.SourceType }}.fromJS(item));
+                }
+            }
+    {%- else -%}
+            this.{{ property.Name }} = data["{{ property.JsonName }}"];
+    {%- endif -%}
+{%- endfor -%}
+        }
+    }
+
+    static fromJS(data: any): {{ ClassName }} {
+        data = typeof data === 'object' ? data : {};
+
+{%- if IsParent -%}
+    {%- for child in Childs -%}
+        if (data["{{ DiscriminatorProperty }}"] === "{{ child.DiscriminatorValue }}") {
+
+            let result = new {{ child.ClassName }}();
+            result.init(data);
+            return result;
+        }
+    {%- endfor -%}
+{%- endif -%}
+
+        let result = new {{ ClassName }}();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+
+        {% if ParentName != null %} 
+        super.toJSON(data);
+        {% endif %}
+        
+{%- for property in Properties -%}
+    {%- if property.Type.StructureType == "Object" -%}
+        data["{{ property.JsonName }}"] = this.{{ property.Name }} ? {{ property.Type.SourceType }}.fromJS(this.{{ property.Name }})?.toJSON() : <any>undefined;
+    {%- elsif property.Type.StructureType == "Array" and property.Type.Of.StructureType == "Object" -%}
+        data["{{ property.JsonName }}"] = null;
+        if (Array.isArray(this.{{ property.Name }})) {
+            data["{{ property.JsonName }}"] = [];
+            for (let item of this.{{ property.Name }}) {
+                if (item && typeof item.toJSON === "function") {
+                    data["{{ property.JsonName }}"].push(item?.toJSON());
+                }
+            }
+        }
+    {%- else -%}
+        data["{{ property.JsonName }}"] = this.{{ property.Name }};
+    {%- endif -%}
+{%- endfor -%}
+        return data;
+    }
+}
+
+{%- for child in Childs -%}
+ {% with child %}
+{% template Code.DTO %}
+{% endwith %}
+{%- endfor -%}

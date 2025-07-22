@@ -1,0 +1,49 @@
+# Configure HTTP basic authorization: basicAuth
+configuration = dfs_config.Configuration(username='{{ operation.Login }}',password='{{ operation.Password }}')
+
+{%- if operation.ForTests -%}
+configuration.host = "https://sandbox.dataforseo.com"
+custom_headers = {
+    "X-Sandbox": "allow"
+}
+{%- endif -%}
+
+
+with dfs_api_provider.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    {{ operation.ApiName | snakecase }} = {{ operation.ApiName }}(api_client)
+
+    {%- if operation.HttpMethod == "POST" -%}
+    response = {{ operation.ApiName | snakecase }}.{{ operation.OperationName }}([{{ operation.RequestType.SourceType }}(
+        {%- for field in operation.Payload -%}
+            {%- if field.Type.StructureType == "Dictionary" -%}
+            {{ field.Name }}={
+                {%- for valueInfo in field.Type.Value -%}
+                    {{ valueInfo.Name }}: {{ valueInfo.Value }},
+                {%- endfor -%}
+                },
+            {%- elsif field.Type.StructureType == "Array" -%}
+            {{ field.Name }}=[
+                {%- for valueInfo in field.Type.Value -%}
+                    {{ valueInfo.Value }},
+                {%- endfor -%}
+                ],
+            {%- else -%}
+            {{ field.Name }}={{ field.Type.Value[0].Value }},
+            {%- endif -%}
+        {%- endfor -%}
+    )]
+{%- if operation.ForTests -%}
+    , _headers=custom_headers
+{%- endif -%}
+    )
+    {%- elsif operation.GetParameter != null -%}
+    {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }}
+        {%- if operation.ForTests -%}
+    response = {{ operation.ApiName | snakecase }}.{{ operation.OperationName }}({{ operation.GetParameter.Name }}, _headers=custom_headers)
+            {%- else -%}
+    response = {{ operation.ApiName | snakecase }}.{{ operation.OperationName }}({{ operation.GetParameter.Name }})
+        {%- endif -%}
+    {%- else -%}
+    response = {{ operation.ApiName | snakecase }}.{{ operation.OperationName }}()
+    {%- endif -%}

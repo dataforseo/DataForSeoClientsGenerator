@@ -1,0 +1,110 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenApiGenerator.CodeGen.Core\OpenApiGenerator.CodeGen.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\Code.API.liquid" />
+      <EmbeddedResource Include="Templates\Code.API.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ApiCallback.liquid" />
+      <EmbeddedResource Include="Templates\Code.ApiCallback.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ApiClient.liquid" />
+      <EmbeddedResource Include="Templates\Code.ApiClient.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ApiException.liquid" />
+      <EmbeddedResource Include="Templates\Code.ApiException.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ApiKeyAuth.liquid" />
+      <EmbeddedResource Include="Templates\Code.ApiKeyAuth.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ApiResponse.liquid" />
+      <EmbeddedResource Include="Templates\Code.ApiResponse.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.Authentication.liquid" />
+      <EmbeddedResource Include="Templates\Code.Authentication.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.Configuration.liquid" />
+      <EmbeddedResource Include="Templates\Code.Configuration.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Code.DTO.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.GzipRequestInterceptor.liquid" />
+      <EmbeddedResource Include="Templates\Code.GzipRequestInterceptor.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.HttpBasicAuth.liquid" />
+      <EmbeddedResource Include="Templates\Code.HttpBasicAuth.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.HttpBearerAuth.liquid" />
+      <EmbeddedResource Include="Templates\Code.HttpBearerAuth.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.JSON.liquid" />
+      <EmbeddedResource Include="Templates\Code.JSON.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.Pair.liquid" />
+      <EmbeddedResource Include="Templates\Code.Pair.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ProgressRequestBody.liquid" />
+      <EmbeddedResource Include="Templates\Code.ProgressRequestBody.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ProgressResponseBody.liquid" />
+      <EmbeddedResource Include="Templates\Code.ProgressResponseBody.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ServerConfiguration.liquid" />
+      <EmbeddedResource Include="Templates\Code.ServerConfiguration.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.ServerVariable.liquid" />
+      <EmbeddedResource Include="Templates\Code.ServerVariable.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Code.StringUtil.liquid" />
+      <EmbeddedResource Include="Templates\Code.StringUtil.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Documentation.API.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.API.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Documentation.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.DTO.liquid">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="Templates\Part.CallEndpoint.liquid" />
+      <None Remove="StaticFiles\.gitignore" />
+      <None Remove="StaticFiles\pom.xml" />
+      <EmbeddedResource Include="StaticFiles\pom.xml" />
+      <None Remove="Templates\Part.ApiOperation.liquid" />
+      <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
+      <None Remove="Templates\Part.FetchExample.liquid" />
+      <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Test.API.liquid" />
+      <EmbeddedResource Include="Templates\Test.API.liquid" />
+      <None Remove="StaticFiles\README.md" />
+      <EmbeddedResource Include="StaticFiles\README.md" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,3 @@
+{%- for type in Types -%}
+export  { {{ type.ClassName }}{%- if type.BindingType == "dto" -%}, I{{ type.ClassName }}{% endif %} } from "./{%- if type.Namespace and type.Namespace != Namespace -%}{{ type.Namespace | replace: '.', '' }}/{%- endif -%}{%- if type.ParentName and type.DiscriminatorValue -%}{{ type.ParentName }}{%- else -%}{{ type.ClassName }}{%- endif -%}";
+{%- endfor -%}

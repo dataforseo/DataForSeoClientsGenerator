@@ -1,0 +1,169 @@
+package {{ Namespace }};
+
+import io.github.dataforseo.client.ApiException;
+import io.github.dataforseo.client.model.*;
+import io.github.dataforseo.client.api.*;
+import io.github.dataforseo.client.ApiClient;
+import io.github.dataforseo.client.Configuration;
+import io.github.dataforseo.client.auth.HttpBasicAuth;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.LinkedList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@Execution(ExecutionMode.CONCURRENT)
+public class {{ ClassName }} {
+
+    private List<String> findAdditionalProperties(Object obj) {
+        return findAdditionalProperties(obj, "", new java.util.HashSet<>(), 0);
+    }
+
+    private List<String> findAdditionalProperties(Object obj, String path) {
+        return findAdditionalProperties(obj, path, new java.util.HashSet<>(), 0);
+    }
+
+    private List<String> findAdditionalProperties(Object obj, String path, java.util.Set<Object> visited) {
+        return findAdditionalProperties(obj, path, visited, 0);
+    }
+    
+    private static final int MAX_DEPTH = 15; // Maximum recursion depth
+
+    private List<String> findAdditionalProperties(Object obj, String path, java.util.Set<Object> visited, int depth) {
+        List<String> result = new ArrayList<>();
+        
+        // Check for null object or if we've already visited this object
+        if (obj == null || visited.contains(obj)) {
+            return result;
+        }
+        
+        // Check if we've exceeded maximum recursion depth
+        if (depth > MAX_DEPTH) {
+            return result;
+        }
+
+        // Add this object to the visited set to prevent infinite recursion
+        visited.add(obj);
+
+        // Check if this object has additionalProperties field
+        try {
+            // Try to get the additionalProperties field
+            Field additionalPropertiesField = null;
+            try {
+                additionalPropertiesField = obj.getClass().getDeclaredField("additionalProperties");
+            } catch (NoSuchFieldException e) {
+                // Try to get additionalProperties via getter method
+                try {
+                    Method getAdditionalProperties = obj.getClass().getMethod("getAdditionalProperties");
+                    if (getAdditionalProperties != null) {
+                        Map<String, Object> additionalProps = (Map<String, Object>) getAdditionalProperties.invoke(obj);
+                        if (additionalProps != null && !additionalProps.isEmpty()) {
+                            result.add(path + ".additionalProperties: " + additionalProps);
+                        }
+                    }
+                } catch (Exception ex) {
+                    // No additionalProperties getter method, continue with field inspection
+                }
+            }
+
+            if (additionalPropertiesField != null) {
+                additionalPropertiesField.setAccessible(true);
+                Map<String, Object> additionalProps = (Map<String, Object>) additionalPropertiesField.get(obj);
+                if (additionalProps != null && !additionalProps.isEmpty()) {
+                    result.add(path + ".additionalProperties: " + additionalProps);
+                }
+            }
+
+            // Recursively check all fields of this object
+            for (Field field : obj.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object fieldValue = field.get(obj);
+
+                // Skip null values and additionalProperties (already checked)
+                if (fieldValue == null || field.getName().equals("additionalProperties")) {
+                    continue;
+                }
+
+                String fieldPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
+
+                // Handle collections
+                if (fieldValue instanceof List) {
+                    List<?> list = (List<?>) fieldValue;
+                    int maxItems = Math.min(list.size(), 100); // Limit the number of items to inspect
+                    for (int i = 0; i < maxItems; i++) {
+                        Object item = list.get(i);
+                        if (item != null && !visited.contains(item)) {
+                            result.addAll(findAdditionalProperties(item, fieldPath + "[" + i + "]", visited, depth + 1));
+                        }
+                    }
+                } else if (fieldValue instanceof Map) {
+                    Map<?, ?> map = (Map<?, ?>) fieldValue;
+                    int count = 0;
+                    int maxEntries = 100; // Limit the number of map entries to inspect
+                    
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        if (count++ > maxEntries) break;
+                        
+                        Object value = entry.getValue();
+                        if (value != null && !visited.contains(value)) {
+                            // Create a safe string representation of the key
+                            String keyStr = String.valueOf(entry.getKey());
+                            result.addAll(findAdditionalProperties(value, 
+                                fieldPath + "[" + keyStr + "]", visited, depth + 1));
+                        }
+                    }
+                } else if (!fieldValue.getClass().isPrimitive() && 
+                           !fieldValue.getClass().getName().startsWith("java.lang") &&
+                           !fieldValue.getClass().isEnum() &&
+                           !visited.contains(fieldValue)) {
+                    // Recursively process non-primitive objects that haven't been visited
+                    result.addAll(findAdditionalProperties(fieldValue, fieldPath, visited, depth + 1));
+                }
+            }
+        } catch (Exception e) {
+            // If reflection fails, add error message to results
+            result.add("Error inspecting " + path + ": " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * Asserts that an object and all its nested objects don't have any non-empty additionalProperties maps.
+     * If any are found, fails the test with a descriptive message.
+     *
+     * @param response The object to check
+     */
+    private void assertNoAdditionalProperties(Object response) {
+        List<String> additionalPropertiesList = findAdditionalProperties(response);
+        if (!additionalPropertiesList.isEmpty()) {
+            StringBuilder message = new StringBuilder("Found unexpected additionalProperties:\n");
+            for (String prop : additionalPropertiesList) {
+                message.append("- ").append(prop).append("\n");
+            }
+            fail(message.toString());
+        }
+        assertNotNull(response);
+    }
+
+
+{% for operation in Operations %}
+    @Test
+    public void {{ operation.OperationName }}Test() throws ApiException {
+        {% template Part.FetchExample %}
+
+        assertNoAdditionalProperties(response);
+        assertTrue(response.getStatusCode() >= 20000 && response.getStatusCode() < 30000);
+    }
+
+{% endfor %}
+}

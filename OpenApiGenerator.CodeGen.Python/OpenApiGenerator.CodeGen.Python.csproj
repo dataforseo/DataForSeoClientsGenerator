@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\OpenApiGenerator.CodeGen.Core\OpenApiGenerator.CodeGen.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Templates\Code.API.liquid" />
+      <EmbeddedResource Include="Templates\Code.API.liquid" />
+      <None Remove="Templates\Code.ApiClient.liquid" />
+      <None Remove="Templates\Code.ApiExceptions.liquid" />
+      <None Remove="Templates\Code.ApiResponse.liquid" />
+      <None Remove="Templates\Code.Configuration.liquid" />
+      <None Remove="Templates\Code.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Code.DTO.liquid" />
+      <None Remove="Templates\Code.Init.liquid" />
+      <None Remove="Templates\Code.MainInit.liquid" />
+      <None Remove="Templates\Code.RestResponse.liquid" />
+      <None Remove="Templates\Part.CallGetEndpoint.liquid" />
+      <None Remove="Templates\Part.CallPostEndpoint.liquid" />
+      <None Remove="StaticFiles\__init__.py" />
+      <EmbeddedResource Include="StaticFiles\__init__.py" />
+      <None Remove="StaticFiles\api_client.py" />
+      <None Remove="StaticFiles\api_response.py" />
+      <EmbeddedResource Include="StaticFiles\api_response.py" />
+      <None Remove="StaticFiles\configuration.py" />
+      <EmbeddedResource Include="StaticFiles\configuration.py" />
+      <None Remove="StaticFiles\exceptions.py" />
+      <EmbeddedResource Include="StaticFiles\exceptions.py" />
+      <None Remove="StaticFiles\rest.py" />
+      <EmbeddedResource Include="StaticFiles\rest.py" />
+      <None Remove="Templates\Documentation.API.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.API.liquid" />
+      <None Remove="Templates\Documentation.DTO.liquid" />
+      <EmbeddedResource Include="Templates\Documentation.DTO.liquid" />
+      <None Remove="Templates\Part.ApiOperation.liquid" />
+      <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
+      <None Remove="Templates\Part.FetchExample.liquid" />
+      <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Test.API.liquid" />
+      <EmbeddedResource Include="Templates\Test.API.liquid" />
+      <None Remove="StaticFiles\setup.py" />
+      <None Remove="Templates\Code.Setup.liquid" />
+      <EmbeddedResource Include="Templates\Code.Setup.liquid" />
+      <None Remove="StaticFiles\empty__init__.py" />
+      <EmbeddedResource Include="StaticFiles\empty__init__.py" />
+      <None Remove="StaticFiles\pytest.ini" />
+      <EmbeddedResource Include="StaticFiles\pytest.ini" />
+      <None Remove="StaticFiles\README.md" />
+      <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="StaticFiles\vscode_launch.json" />
+      <EmbeddedResource Include="StaticFiles\vscode_launch.json" />
+      <None Remove="StaticFiles\vscode_settings.json" />
+      <EmbeddedResource Include="StaticFiles\vscode_settings.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Templates\Code.ApiClient.liquid" />
+    </ItemGroup>
+</Project>

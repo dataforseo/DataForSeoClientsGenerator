@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using DataForSeo.Client.Models;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using DataForSeo.Client.Models.Requests;
+using DataForSeo.Client.Models.Responses;
+
+namespace {{ Namespace }}
+{
+    public  class {{ ClassName }}
+    {
+    #pragma warning disable 8618
+        private string _baseUrl;
+        private HttpClient _httpClient;
+        private JsonSerializerSettings _settings = new JsonSerializerSettings();
+    #pragma warning restore 8618
+    
+        public bool ReadResponseAsString { get; set; }
+    
+        public {{ ClassName }}(HttpClient httpClient)
+        {
+            BaseUrl = "https://api.dataforseo.com";
+            _httpClient = httpClient;
+        }
+
+        public string BaseUrl
+        {
+            get
+            {
+                return _baseUrl;
+            }
+
+            set
+            {
+                _baseUrl = value;
+            }
+        }
+
+    {%- for operation in Operations -%}
+        {% template Part.ApiOperation %}
+    {%- endfor -%}
+            
+        protected struct ObjectResponseResult<T>
+        {
+            public ObjectResponseResult(T responseObject, string responseText)
+            {
+                this.Object = responseObject;
+                this.Text = responseText;
+            }
+    
+            public T Object { get; }
+            public string Text { get; }
+        }
+    
+        protected virtual async Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(HttpResponseMessage response, IReadOnlyDictionary<string, IEnumerable<string>> headers)
+        {
+            if (response == null || response.Content == null)
+            {
+                return new ObjectResponseResult<T>(default(T), string.Empty);
+            }
+    
+            if (ReadResponseAsString)
+            {
+                var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    var typedBody = JsonConvert.DeserializeObject<T>(responseText, _settings);
+                    return new ObjectResponseResult<T>(typedBody, responseText);
+                }
+                catch (JsonException exception)
+                {
+                    var message = "Could not deserialize the response body string as " + typeof(T).FullName + ".";
+                    throw new ApiException(message, (int)response.StatusCode, responseText, headers, exception);
+                }
+            }
+    
+            try
+            {
+                using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                using (var streamReader = new System.IO.StreamReader(responseStream))
+                using (var jsonTextReader = new JsonTextReader(streamReader))
+                {
+                    var serializer = JsonSerializer.Create(_settings);
+                    var typedBody = serializer.Deserialize<T>(jsonTextReader);
+                    return new ObjectResponseResult<T>(typedBody, string.Empty);
+                }
+            }
+            catch (JsonException exception)
+            {
+                var message = "Could not deserialize the response body stream as " + typeof(T).FullName + ".";
+                throw new ApiException(message, (int)response.StatusCode, string.Empty, headers, exception);
+            }
+        }
+    } 
+}

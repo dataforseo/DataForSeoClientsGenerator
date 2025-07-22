@@ -1,0 +1,27 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DataForSeo.Client.Models.Requests;
+using DataForSeo.Client.Tests.Helpers;
+using NUnit.Framework;
+
+namespace DataForSeo.Client.Tests.Api;
+
+[Parallelizable(ParallelScope.All)]
+public class {{ ClassName }}
+{
+    {% for operation in Operations %}
+    [Test]
+    public async Task {{ operation.OperationName }}()
+    {
+        {% template Part.FetchExample %}
+            
+        foreach (var task in result.Tasks)
+        {
+            Assert.That(task.StatusCode, Is.GreaterThanOrEqualTo(20_000));
+            Assert.That(task.StatusCode, Is.LessThan(30_000), $"status code: {task.StatusCode}, {task.StatusMessage}");
+        }
+        
+        TestHelper.CheckAdditionalProperties(result);
+    }
+    {% endfor %}
+}

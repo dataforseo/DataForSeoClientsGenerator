@@ -1,0 +1,180 @@
+
+{% if operation.HttpMethod == "POST" %} 
+public okhttp3.Call {{ operation.OperationName }}Call({{ operation.RequestType.TypeName }} payload, final ApiCallback _callback) throws ApiException {
+       String basePath = null;
+       // Operation Servers
+       String[] localBasePaths = new String[] {  };
+
+       // Determine Base Path to Use
+       if (localCustomBaseUrl != null){
+           basePath = localCustomBaseUrl;
+       } else if ( localBasePaths.length > 0 ) {
+           basePath = localBasePaths[localHostIndex];
+       } else {
+           basePath = null;
+       }
+
+       Object localVarPostBody = payload;
+
+       // create path and map variables
+       String localVarPath = "{{ operation.Path }}";
+
+       List<Pair> localVarQueryParams = new ArrayList<Pair>();
+       List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+       Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+       Map<String, String> localVarCookieParams = new HashMap<String, String>();
+       Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+       final String[] localVarAccepts = {
+           "application/json"
+       };
+       final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+       if (localVarAccept != null) {
+           localVarHeaderParams.put("Accept", localVarAccept);
+       }
+
+       final String[] localVarContentTypes = {
+           "application/json"
+       };
+       final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+       if (localVarContentType != null) {
+           localVarHeaderParams.put("Content-Type", localVarContentType);
+       }
+
+       String[] localVarAuthNames = new String[] { "basicAuth" };
+       return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+   }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall({{ operation.RequestType.TypeName }} payload, final ApiCallback _callback) throws ApiException {
+        return {{ operation.OperationName }}Call(payload, _callback);
+ 
+    }
+ 
+    public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}({{ operation.RequestType.TypeName }} payload) throws ApiException {
+        ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo(payload);
+        return localVarResp.getData();
+    }
+ 
+    public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo({{ operation.RequestType.TypeName }} payload) throws ApiException {
+        okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(payload, null);
+        Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+ 
+    public okhttp3.Call {{ operation.OperationName }}Async({{ operation.RequestType.TypeName }} payload, final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
+ 
+        okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(payload, _callback);
+        Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+{% endif %}
+{% if operation.HttpMethod == "GET" %}
+
+public okhttp3.Call {{ operation.OperationName }}Call({% if operation.GetParameter != null %} {{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, {% endif %} final ApiCallback _callback) throws ApiException {
+   String basePath = null;
+   // Operation Servers
+   String[] localBasePaths = new String[] {  };
+
+   // Determine Base Path to Use
+   if (localCustomBaseUrl != null){
+       basePath = localCustomBaseUrl;
+   } else if ( localBasePaths.length > 0 ) {
+       basePath = localBasePaths[localHostIndex];
+   } else {
+       basePath = null;
+   }
+
+   Object localVarPostBody = null;
+
+   // create path and map variables
+   {% if operation.GetParameter != null %}
+   String localVarPath = "{{ operation.Path }}".replace("{" + "{{ operation.GetParameter.Name }}" + "}", localVarApiClient.escapeString({{ operation.GetParameter.Name }}.toString()));
+   {%- else -%}
+   String localVarPath = "{{ operation.Path }}";
+   {% endif %}
+
+   List<Pair> localVarQueryParams = new ArrayList<Pair>();
+   List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+   Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+   Map<String, String> localVarCookieParams = new HashMap<String, String>();
+   Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+   final String[] localVarAccepts = {
+       "application/json"
+   };
+   final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+   if (localVarAccept != null) {
+       localVarHeaderParams.put("Accept", localVarAccept);
+   }
+
+   final String[] localVarContentTypes = {
+   };
+   final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+   if (localVarContentType != null) {
+       localVarHeaderParams.put("Content-Type", localVarContentType);
+   }
+
+   String[] localVarAuthNames = new String[] { "basicAuth" };
+   return localVarApiClient.buildCall(basePath, localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+}
+
+    {% if operation.GetParameter != null %}
+@SuppressWarnings("rawtypes")
+private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, final ApiCallback _callback) throws ApiException {
+   // verify the required parameter '{{ operation.GetParameter.Name }}' is set
+   if ({{ operation.GetParameter.Name }} == null) {
+       throw new ApiException("Missing the required parameter '{{ operation.GetParameter.Name }}' when calling {{ operation.OperationName }}(Async)");
+   }
+
+   return {{ operation.OperationName }}Call({{ operation.GetParameter.Name }}, _callback);
+
+}
+
+public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}) throws ApiException {
+   ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo({{ operation.GetParameter.Name }});
+   return localVarResp.getData();
+}
+
+public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}) throws ApiException {
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Name }}, null);
+   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+   return localVarApiClient.execute(localVarCall, localVarReturnType);
+}
+
+public okhttp3.Call {{ operation.OperationName }}Async({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
+
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Name }}, _callback);
+   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+   localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+   return localVarCall;
+}
+    {% else %}
+@SuppressWarnings("rawtypes")
+private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+
+   return {{ operation.OperationName }}Call(_callback);
+
+}
+
+public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}() throws ApiException {
+   ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo();
+   return localVarResp.getData();
+}
+
+public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo() throws ApiException {
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(null);
+   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+   return localVarApiClient.execute(localVarCall, localVarReturnType);
+}
+
+public okhttp3.Call {{ operation.OperationName }}Async(final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
+
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(_callback);
+   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
+   localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+   return localVarCall;
+}
+    {% endif %}
+{% endif %}
