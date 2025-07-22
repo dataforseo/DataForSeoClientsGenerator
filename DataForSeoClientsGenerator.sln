@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.Utils", "O
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.CodeGen.TypeScript", "OpenApiGenerator.CodeGen.TypeScript\OpenApiGenerator.CodeGen.TypeScript.csproj", "{67199969-4887-418A-ADA4-9059E8E0E3B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiGenerator.Console", "OpenApiGenerator.Console\OpenApiGenerator.Console.csproj", "{09DEB8B1-8AA2-4C79-8E69-DA6D6179A78A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67199969-4887-418A-ADA4-9059E8E0E3B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09DEB8B1-8AA2-4C79-8E69-DA6D6179A78A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09DEB8B1-8AA2-4C79-8E69-DA6D6179A78A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09DEB8B1-8AA2-4C79-8E69-DA6D6179A78A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09DEB8B1-8AA2-4C79-8E69-DA6D6179A78A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
