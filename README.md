@@ -34,7 +34,7 @@ dotnet run -c Release -- [options]
   - Example: `--languages CSharp,Python`
 
 - `--doc` - Path to the OpenAPI YAML specification file
-  - Default: Downloads from official DataForSeo GitHub repository
+  - Default: Downloads from official DataForSeo GitHub [repository](https://github.com/dataforseo/OpenApiDocumentation)
   - Example: `--doc C:\path\to\openapi.yaml`
 
 - `--out` - Output root path for generated client libraries
@@ -64,11 +64,6 @@ dotnet run -c Release -- --languages CSharp Python --out "D:\MyClients"
 **Generate with custom OpenAPI file and credentials:**
 ```bash
 dotnet run -c Release -- --doc "D:\api\openapi.yaml" --login "myuser" --password "mypass" --out "C:\Output"
-```
-
-**Generate TypeScript client only:**
-```bash
-dotnet run -c Release -- --languages TypeScript --out "./typescript-client"
 ```
 
 The generator will automatically create appropriate project structures, dependencies, and test configurations for each selected language.
