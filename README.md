@@ -31,7 +31,7 @@ dotnet run -c Release -- [options]
 - `--languages` - Programming languages to generate code for (comma-separated)
   - Available: `CSharp`, `Java`, `Python`, `TypeScript`
   - Default: All languages
-  - Example: `--languages CSharp,Python`
+  - Example: `--languages CSharp Python`
 
 - `--doc` - Path to the OpenAPI YAML specification file
   - Default: Downloads from official DataForSeo GitHub [repository](https://github.com/dataforseo/OpenApiDocumentation)
