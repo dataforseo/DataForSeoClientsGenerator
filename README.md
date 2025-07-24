@@ -58,12 +58,12 @@ dotnet run -c Release
 
 **Generate only C# and Python clients:**
 ```bash
-dotnet run -c Release -- --languages CSharp Python --out "D:\MyClients"
+dotnet run -c Release -- --languages CSharp Python --out D:\MyClients
 ```
 
 **Generate with custom OpenAPI file and credentials:**
 ```bash
-dotnet run -c Release -- --doc "D:\api\openapi.yaml" --login "myuser" --password "mypass" --out "C:\Output"
+dotnet run -c Release -- --doc D:\api\openapi.yaml --login myuser --password mypass --out C:\Output
 ```
 
 The generator will automatically create appropriate project structures, dependencies, and test configurations for each selected language.
