@@ -1,68 +1,43 @@
-﻿using Microsoft.OpenApi.Readers;
-using OpenApiGenerator.CodeGen.CSharp;
-using OpenApiGenerator.CodeGen.Java;
-using OpenApiGenerator.CodeGen.TypeScript;
-using OpenApiGenerator.CodeGen.Python;
+﻿using System.CommandLine;
+using System.CommandLine.Parsing;
+using CodeGenerator.Core;
+using OpenApiGenerator.Console;
 
-var path = "path to openapi yaml documentation";
-var docStr = await File.ReadAllTextAsync(path);
-var documentation = new OpenApiStringReader().Read(docStr, out _);
+var cmdArgs = args;
 
-await new CSharpClientProjectBuilder(new CSharpGeneratorSettings()
+#if DEBUG
+Console.Write("Enter args: ");
+var input = Console.ReadLine();
+
+cmdArgs = CommandLineStringSplitter.Instance
+    .Split(input ?? string.Empty)
+    .ToArray();
+#endif
+
+var languagesParam = CliOptionsProvider.GetLangaugesOption();
+var docParam = CliOptionsProvider.GetDocumantationPathOption();
+var loginParam = CliOptionsProvider.GetLoginOption();
+var passwordParam = CliOptionsProvider.GetPasswordOption();
+var outputParam = CliOptionsProvider.GetOutputPathOption();
+var cmd = new RootCommand("DFS client code generator cli")
 {
-    RootNamespace = "DataForSeo.Client",
-    RootFilePath = "place to save generated files",
-    Host = "api.dataforseo.com",
-    FileType = "cs",
-    Version = "1.0.0",
-    Sandbox =
-    {
-        Host = "sandbox.dataforseo.com",
-        Login = "username",
-        Password = "password"
-    }
-}).Build(documentation);
+    languagesParam,
+    docParam,
+    loginParam,
+    passwordParam,
+    outputParam
+};
 
-await new JavaClientProjectBuilder(new JavaGeneratorSettings()
+cmd.SetHandler(async (languages, docPath, login, password, outputPath) =>
 {
-    RootNamespace = "io.github.dataforseo.client",
-    RootFilePath = "place to save generated files",
-    Host = "api.dataforseo.com",
-    FileType = "java",
-    Version = "1.0.0",
-    Sandbox =
+    await GenerateHandler.Handle(new HandlerOptions()
     {
-        Host = "sandbox.dataforseo.com",
-        Login = "username",
-        Password = "password"
-    }
-}).Build(documentation);
+        Langauges = languages.ToList(),
+        DocumentationPath = docPath,
+        Login = login ?? "username",
+        Password = password ?? "password",
+        SaveResultRootPath = outputPath
+    });
+}, languagesParam, docParam, loginParam, passwordParam, outputParam);
 
-await new TypeScriptClientProjectBuilder(new TypeScriptGeneratorSettings()
-{
-    RootFilePath = "place to save generated files",
-    Host = "api.dataforseo.com",
-    FileType = "ts",
-    Version = "1.0.0",
-    Sandbox =
-    {
-        Host = "sandbox.dataforseo.com",
-        Login = "username",
-        Password = "password"
-    }
-}).Build(documentation);
-
-await new PythonClientProjectBuilder(new PythonGeneratorSettings()
-{
-    RootNamespace = "dataforseo_client",
-    RootFilePath = "place to save generated files",
-    Host = "api.dataforseo.com",
-    FileType = "py",
-    Version = "1.0.0",
-    Sandbox =
-    {
-        Host = "sandbox.dataforseo.com",
-        Login = "username",
-        Password = "password"
-    }
-}).Build(documentation);
+await cmd.InvokeAsync(cmdArgs);
