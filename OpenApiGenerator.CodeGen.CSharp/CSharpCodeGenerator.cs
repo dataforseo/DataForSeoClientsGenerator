@@ -30,7 +30,8 @@ public class CSharpCodeGenerator : BaseCodeGenerator
         mainClientBinding.Version = Settings.Version;
         Settings.NamespaceResolver.ResolveNamespace(mainClientBinding);
         Settings.NamespaceResolver.ResolveFilePath(mainClientBinding);
-        
+
+        var item = CreateBindings();
         foreach (var bind in CreateBindings().OfType<LiquidFileBinding>())
         {
             var templateName = bind switch

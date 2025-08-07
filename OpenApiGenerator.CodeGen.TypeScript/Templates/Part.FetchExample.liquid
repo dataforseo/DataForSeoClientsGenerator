@@ -29,24 +29,32 @@ let task = new {{ operation.RequestType.SourceType }}();
 {%- for field in operation.Payload -%}
   {%- if field.Type.StructureType == "Dictionary" -%}
   task.{{ field.Name }} = {
-    {%- for value in field.Type.Value -%}
-      {{ value.Name }}: {{ value.Value }},
+    {%- for fieldValue in field.Type.Value.Fields -%}
+      {{ fieldValue.FieldName }}: {{ fieldValue.Value.Value }},
     {%- endfor -%}
   };
   {%- elsif field.Type.StructureType == "Array" -%}
   task.{{ field.Name }} = [
-    {%- for value in field.Type.Value -%}
-      {{ value.Value }},
+    {%- for valueItem in field.Type.Value.Items -%}
+      {%- if valueItem.Type == "Object" -%}
+        new {{ field.Type.SourceType }}({
+          {%- for objectField in valueItem.Fields -%}
+          {{ objectField.FieldName }}: {{ objectField.Value.Value }},
+          {%- endfor -%}
+        }),
+        {%- else -%}
+      {{ valueItem.Value }},
+      {%- endif -%}
     {%- endfor -%}
   ];
   {%- else -%}
-  task.{{ field.Name }} = {{ field.Type.Value[0].Value }};
+  task.{{ field.Name }} = {{ field.Type.Value.Value }};
   {%- endif -%}
 {%- endfor -%}
 let response = await api.{{ operation.OperationName }}([task]);
 {%- else -%}
   {%- if operation.GetParameter != null -%}
-let {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+let {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value.Value }};
 let response = await api.{{ operation.OperationName }}({{ operation.GetParameter.Name }});
   {%- else -%}
 let response = await api.{{ operation.OperationName }}();

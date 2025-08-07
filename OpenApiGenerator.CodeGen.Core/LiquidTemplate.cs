@@ -39,6 +39,20 @@ public class LiquidTemplate
         _templateOptions.Filters.AddFilter("snakecase", LiquidFilters.SnakeCase);
         _templateOptions.Filters.AddFilter("pascalcase", LiquidFilters.PascalCase);
         _templateOptions.Filters.AddFilter("screamingcase", LiquidFilters.ScreamingCase);
+        _templateOptions.MemberAccessStrategy.Register(typeof(Enum));
+        
+        _templateOptions.MemberAccessStrategy.Register<ResolvedTypeArrayValueInfo>();
+        _templateOptions.MemberAccessStrategy.Register<ResolvedTypeObjectValueInfo>();
+        _templateOptions.MemberAccessStrategy.Register<ResolvedTypePrimitiveValueInfo>();
+        _templateOptions.ValueConverters.Add((value) =>
+        {
+            if (value is Enum enumValue)
+            {
+                return enumValue.ToString();
+            }
+            
+            return value;
+        });        
     }
 
     private readonly LiquidConfig _liquidConfig;
@@ -372,21 +386,16 @@ sealed class LiquidParser : FluidParser
             if (arguments.Count == 0)
                 return Completion.Normal;
 
-            // Зберігаємо оригінальну модель
             var originalModel = context.Model;
 
             try
             {
-                // Обчислюємо нову модель
                 var newModel = await arguments[0].EvaluateAsync(context);
                 
-                // Підміняємо модель в контексті
-                // context.Model = newModel.ToObjectValue();
                 var newContext = new TemplateContext(newModel, context.Options);
                 foreach (var (ambientKey, ambientValue) in context.AmbientValues)
                     newContext.AmbientValues[ambientKey] = ambientValue;
                 
-                // Рендеримо вміст блоку
                 for (var i = 0; i < statements.Count; i++)
                 {
                     var completion = await statements[i].WriteToAsync(writer, encoder, newContext);
@@ -400,14 +409,11 @@ sealed class LiquidParser : FluidParser
             }
             finally
             {
-                // // Відновлюємо оригінальну модель
                 // context.Model = originalModel;
             }
         });
     }
     
-    // private static Зфкіук
-
     private static ValueTask<Completion> RenderTemplate(
         IReadOnlyList<Expression> arguments,
         TextWriter writer,
@@ -417,7 +423,6 @@ sealed class LiquidParser : FluidParser
         var templateName = ((LiteralExpression)arguments[0]).Value.ToStringValue();
         object withModel = null;
 
-        // 🗝️ Перевірити чи є `with`
         if (arguments.Count > 1 && arguments[1] is MemberExpression expr)
         {
             withModel = expr.EvaluateAsync(context).Result.ToObjectValue();

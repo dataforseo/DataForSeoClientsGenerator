@@ -30,19 +30,26 @@ basicAuth.setPassword("{{ operation.Password }}");
         {%- elsif field.Type.StructureType == "Array" -%}
        .{{ field.Name }}(
            List.of(
-            {%- for valueInfo in field.Type.Value -%}
+            {%- for valueInfo in field.Type.Value.Items -%}
+                {%- if valueItem.Type == "Object" -%}
+                new {{ operation.RequestType.Of.TypeName }}()
+                    {%- for objectField in valueItem.Fields -%}
+                    .{{ objectField.FieldName }}({{ objectField.Value.Value }}){% unless forloop.last -%},{% endunless %}
+                    {%- endfor -%}
+                {%- else -%}
                {{ valueInfo.Value }}{% unless forloop.last -%},{% endunless %}
+                {%- endif -%}
             {%- endfor -%}
             )){% if forloop.last %};{% endif %}
         {%- else -%}
-       .{{ field.Name }}({{ field.Type.Value[0].Value }}){% if forloop.last %};{% endif %}
+       .{{ field.Name }}({{ field.Type.Value.Value }}){% if forloop.last %};{% endif %}
         {%- endif -%}
     {%- endfor -%}
 {{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}(List.of(model));   
 {%- endif -%}
 {%- if operation.HttpMethod == "GET" -%}
     {%- if operation.GetParameter != null -%}
-{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value.Value }};
 {{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}({{ operation.GetParameter.Name }});   
     {% else %}
 {{ operation.ResponseType.TypeName }} response = apiInstance.{{ operation.OperationName }}(); 

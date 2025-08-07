@@ -21,26 +21,35 @@ var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName 
         {%- if field.Type.StructureType == "Dictionary" -%}
         {{ field.Name }} = new Dictionary<string, {{ field.Type.Of.TypeName }}>()
         {
-            {%- for value in field.Type.Value -%}
-            [{{ value.Name }}] = {{ value.Value }},
+            {%- for fieldValue in field.Type.Value.Fields -%}
+            ["{{ fieldValue.FieldName }}"] = {{ fieldValue.Value.Value }},
             {%- endfor -%}
         },
         {%- elsif field.Type.StructureType == "Array" -%}
         {{ field.Name }} = new List<{{ field.Type.SourceType }}>()
         {
-            {%- for value in field.Type.Value -%}
-            {{ value.Value }},
+            {%- for valueItem in field.Type.Value.Items -%}
+                {%- if valueItem.Type == "Object" -%}
+            new {{ field.Type.SourceType }}()
+            {
+                    {%- for objectField in valueItem.Fields -%}
+                 {{ objectField.FieldName }} = {{ objectField.Value.Value }},
+                    {%- endfor -%}
+            },
+                {%- else -%}
+            {{ valueItem.Value }},
+                {%- endif -%}
             {%- endfor -%}
         },
         {%- else -%}
-        {{ field.Name }} = {{ field.Type.Value[0].Value }},
+        {{ field.Name }} = {{ field.Type.Value.Value }},
         {%- endif -%}
         {%- endfor -%}
     }
 }); 
 {%- else -%}
     {%- if operation.GetParameter != null -%}
-var {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value[0].Value }};
+var {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value.Value }};
 var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async({{ operation.GetParameter.Name }});
     {%- else -%}
 var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async();

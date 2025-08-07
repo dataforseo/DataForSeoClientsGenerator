@@ -15,24 +15,12 @@ public class JavaTypeResolver : TypeResolver
     protected override ResolvedTypeInfo ResolveArray(OpenApiSchema schema)
     {
         var items = Resolve(schema.Items);
-
-        var values = schema.Example is OpenApiArray array
-            ? array.Select(x => ExtractPrimitive(x)).ToList()
-            : [ExtractPrimitive(schema.Example)];
-
-        values = values.Where(x => !string.IsNullOrEmpty(x)).ToList();
-
         return new ResolvedTypeInfo()
         {
             TypeName = $"List<{items.TypeName}>",
             StructureType = "Array",
             Of = items,
-            Value = values
-                .Select(x => new ResolvedTypeValueInfo()
-                {
-                    Value = x,
-                })
-                .ToList()
+            Value = ResolveExample(schema.Example)
         };
     }
 
@@ -49,27 +37,12 @@ public class JavaTypeResolver : TypeResolver
     protected override ResolvedTypeInfo ResolveDicionary(OpenApiSchema schema)
     {
         var dictValueInfo = Resolve(schema.AdditionalProperties);
-
-        var values = new List<ResolvedTypeValueInfo>();
-        if (schema.Example != null)
-        {
-            var example = schema.Example as OpenApiObject;
-            foreach (var (name, value) in example.ToList())
-            {
-                values.Add(new ResolvedTypeValueInfo()
-                {
-                    Name = $"\"{name}\"",
-                    Value = ExtractPrimitive(value),
-                });
-            }
-        }
-
         return new ResolvedTypeInfo()
         {
             TypeName = $"Map<String, {dictValueInfo.TypeName}>",
             StructureType = "Dictionary",
             Of = dictValueInfo,
-            Value = values
+            Value = ResolveExample(schema.Example)
         };
     }
 
@@ -103,25 +76,15 @@ public class JavaTypeResolver : TypeResolver
             _ => "Object"
         };
 
-        string val = ExtractPrimitive(schema.Example);
-
         return new ResolvedTypeInfo()
         {
             TypeName = type,
             StructureType = "Primitive",
-            Value = string.IsNullOrEmpty(val)
-                ? null
-                : new List<ResolvedTypeValueInfo>()
-                {
-                    new()
-                    {
-                        Value = val,
-                    }
-                }
+            Value = ResolveExample(schema.Example)
         };
     }
 
-    private string ExtractPrimitive(IOpenApiAny schema)
+    protected override string ExtractPrimitiveExample(IOpenApiAny schema)
     {
         var res = schema switch
         {

@@ -15,25 +15,13 @@ public class CSharpTypeResolver : TypeResolver
     protected override ResolvedTypeInfo ResolveArray(OpenApiSchema schema)
     {
         var items = Resolve(schema.Items);
-
-        var values = schema.Example is OpenApiArray array
-            ? array.Select(x => ExtractPrimitiveExample(x)).ToList()
-            : [ExtractPrimitiveExample(schema.Example)];
-
-        values = values.Where(x => !string.IsNullOrEmpty(x)).ToList();
-
         return new ResolvedTypeInfo()
         {
             TypeName = $"IEnumerable<{items.TypeName}>",
             StructureType = "Array",
             Of = items,
             SourceType = items.SourceType,
-            Value = values
-                .Select(x => new ResolvedTypeValueInfo()
-                {
-                    Value = x,
-                })
-                .ToList()
+            Value = ResolveExample(schema.Example)
         };
     }
 
@@ -51,27 +39,12 @@ public class CSharpTypeResolver : TypeResolver
     protected override ResolvedTypeInfo ResolveDicionary(OpenApiSchema schema)
     {
         var dictValueInfo = Resolve(schema.AdditionalProperties);
-
-        var values = new List<ResolvedTypeValueInfo>();
-        if (schema.Example != null)
-        {
-            var example = schema.Example as OpenApiObject;
-            foreach (var (name, value) in example.ToList())
-            {
-                values.Add(new ResolvedTypeValueInfo()
-                {
-                    Name = $"\"{name}\"",
-                    Value = ExtractPrimitiveExample(value),
-                });
-            }
-        }
-
         return new ResolvedTypeInfo()
         {
             TypeName = $"IDictionary<string, {dictValueInfo.TypeName}>",
             StructureType = "Dictionary",
             Of = dictValueInfo,
-            Value = values,
+            Value = ResolveExample(schema.Example),
             SourceType = dictValueInfo.SourceType
         };
     }
@@ -107,26 +80,16 @@ public class CSharpTypeResolver : TypeResolver
             _ => throw new NotImplementedException()
         };
         
-        string val = ExtractPrimitiveExample(schema.Example);
-
         return new ResolvedTypeInfo()
         {
             TypeName = type,
             StructureType = "Primitive",
             SourceType = sourceType,
-            Value = string.IsNullOrEmpty(val)
-                ? null
-                : new List<ResolvedTypeValueInfo>()
-                {
-                    new()
-                    {
-                        Value = val,
-                    }
-                }
+            Value = ResolveExample(schema.Example)
         };
     }
     
-    private string ExtractPrimitiveExample(IOpenApiAny schema)
+    protected override string ExtractPrimitiveExample(IOpenApiAny schema)
     {
         var res = schema switch
         {

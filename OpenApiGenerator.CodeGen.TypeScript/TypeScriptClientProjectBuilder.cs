@@ -18,6 +18,9 @@ public class TypeScriptClientProjectBuilder
             ["tsconfig.base.json"] = root,
             ["tsconfig.cjs.json"] = root,
             ["tsconfig.esm.json"] = root,
+            ["fix-esm-imports.js"] = root,
+            // ["rollup.config.cjs.js"] = root,
+            // ["rollup.config.esm.js"] = root,
             ["jest.config.cjs"] = root,
             ["README.md"] = root,
         };

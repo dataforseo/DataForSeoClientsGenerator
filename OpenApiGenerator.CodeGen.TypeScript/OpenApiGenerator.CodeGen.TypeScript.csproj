@@ -48,6 +48,7 @@
       <EmbeddedResource Include="StaticFiles\tsconfig.base.json" />
       <None Remove="StaticFiles\jest.config.cjs" />
       <EmbeddedResource Include="StaticFiles\jest.config.cjs" />
+      <None Remove="StaticFiles\postproccess-esm-index.js" />
     </ItemGroup>
 
     <ItemGroup>
