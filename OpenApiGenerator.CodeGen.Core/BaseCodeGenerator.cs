@@ -167,6 +167,7 @@ public abstract class BaseCodeGenerator
             foreach (var method in apiBinding.Operations)
             {
                 var dependedTypeBinding = SetupDependentTypes(method.RequestType?.Of?.TypeName.Replace("[]", ""));
+                method.RequestTypeBinding = dependedTypeBinding;
                 if (dependedTypeBinding != null && apiBinding.DependentTypes.All(x => x.ClassName != dependedTypeBinding.ClassName))
                 {
                     apiBinding.DependentTypes.Add(dependedTypeBinding);
@@ -181,6 +182,7 @@ public abstract class BaseCodeGenerator
                 }
 
                 var responseDependedTypeBinding = SetupDependentTypes(method.ResponseType.TypeName);
+                method.ResponseTypeBinding = responseDependedTypeBinding;
                 if (responseDependedTypeBinding != null && apiBinding.DependentTypes.All(x => x.ClassName != responseDependedTypeBinding.ClassName))
                     apiBinding.DependentTypes.Add(responseDependedTypeBinding);
             }

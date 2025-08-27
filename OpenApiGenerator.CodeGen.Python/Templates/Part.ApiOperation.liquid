@@ -2,7 +2,7 @@
 @validate_call
 def {{ operation.OperationName }}(
     self,
-    {{ operation.RequestType.TypeName | snakecase }}: {{ operation.RequestType.TypeName }} = None,
+    {{ operation.RequestType.TypeName | snakecase }}: '{{ operation.RequestType.TypeName }}' = None,
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -43,7 +43,7 @@ def {{ operation.OperationName }}(
 @validate_call
 def {{ operation.OperationName }}_with_http_info(
     self,
-    {{ operation.RequestType.TypeName | snakecase }}: Optional[List[{{ operation.RequestType.TypeName }}]] = None,
+    {{ operation.RequestType.TypeName | snakecase }}: '{{ operation.RequestType.TypeName }}' = None,
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -56,7 +56,7 @@ def {{ operation.OperationName }}_with_http_info(
     _content_type: Optional[StrictStr] = None,
     _headers: Optional[Dict[StrictStr, Any]] = None,
     _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-) -> ApiResponse[{{ operation.ResponseType.TypeName }}]:
+) -> 'ApiResponse[{{ operation.ResponseType.TypeName }}]':
 
     _param = self._{{ operation.OperationName }}_serialize(
         {{ operation.RequestType.TypeName | snakecase }}={{ operation.RequestType.TypeName | snakecase }},
@@ -83,7 +83,7 @@ def {{ operation.OperationName }}_with_http_info(
 @validate_call
 def {{ operation.OperationName }}_without_preload_content(
     self,
-    {{ operation.RequestType.TypeName | snakecase }}: Optional[List[{{ operation.RequestType.TypeName }}]] = None,
+    {{ operation.RequestType.TypeName | snakecase }}: '{{ operation.RequestType.TypeName }}' = None,
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -250,7 +250,7 @@ def {{ operation.OperationName }}_with_http_info(
     _content_type: Optional[StrictStr] = None,
     _headers: Optional[Dict[StrictStr, Any]] = None,
     _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-) -> ApiResponse[{{ operation.ResponseType.TypeName }}]:
+) -> 'ApiResponse[{{ operation.ResponseType.TypeName }}]':
 
     _param = self._{{ operation.OperationName }}_serialize(
         {%- if operation.GetParameter != null -%}

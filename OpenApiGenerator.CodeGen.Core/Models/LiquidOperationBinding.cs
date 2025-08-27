@@ -9,7 +9,9 @@ public class LiquidOperationBinding
     public string OperationName { get; set; }
     public string HttpMethod { get; set; }
     public ResolvedTypeInfo ResponseType { get; set; }
+    public LiquidDtoBinding ResponseTypeBinding { get; set; }
     public ResolvedTypeInfo RequestType { get; set; }
+    public LiquidDtoBinding RequestTypeBinding { get; set; }
     public LiquidPropertyBinding GetParameter { get; set; } 
     public List<LiquidPropertyBinding> Payload { get; set; }
     public string ApiName { get; set; }

@@ -160,7 +160,5 @@ class {{ ClassName }}({%- if Parent != null and Parent.Childs != null and Parent
             return import_module("{{ child.Namespace }}.{{ child.ClassName | snakecase }}").{{ child.ClassName }}.from_dict(obj)
         {%- endfor -%}
 
-        raise ValueError("BaseSerpElementItem failed to lookup discriminator value from " +
-                         json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
-                         ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
+        return None
 {%- endif -%}
