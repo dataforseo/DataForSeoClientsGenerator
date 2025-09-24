@@ -26,10 +26,10 @@ class {{ ClassName }}({%- if Parent != null and Parent.Childs != null and Parent
     {{ ClassName }}
     """ # noqa: E501
 {%- for property in Parent.Properties -%}
-    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description="{{ property.Description | pythondocs }}")
+    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description=r"{{ property.Description | pythondocs }}")
 {%- endfor -%}
 {%- for property in Properties -%}
-    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description="{{ property.Description | pythondocs }}")
+    {{ property.Name }}: Optional[{{ property.Type.TypeName }}] = Field(default=None, description=r"{{ property.Description | pythondocs }}")
 {%- endfor -%}
     __properties: ClassVar[List[str]] = [
         {%- for property in Parent.Properties -%} 

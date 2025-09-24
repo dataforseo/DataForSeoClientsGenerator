@@ -56,7 +56,7 @@ public class PythonClientProjectBuilder
             },
             ["README.md"] = new()
             {
-                SavePathes = [Path.Combine(root)]
+                SavePathes = [Path.Combine(root, "src")]
             },
             ["vscode_launch.json"] = new()
             {
