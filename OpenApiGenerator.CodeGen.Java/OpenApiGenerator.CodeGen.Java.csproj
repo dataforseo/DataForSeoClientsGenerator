@@ -96,8 +96,6 @@
       </EmbeddedResource>
       <None Remove="Templates\Part.CallEndpoint.liquid" />
       <None Remove="StaticFiles\.gitignore" />
-      <None Remove="StaticFiles\pom.xml" />
-      <EmbeddedResource Include="StaticFiles\pom.xml" />
       <None Remove="Templates\Part.ApiOperation.liquid" />
       <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
       <None Remove="Templates\Part.FetchExample.liquid" />
@@ -106,5 +104,7 @@
       <EmbeddedResource Include="Templates\Test.API.liquid" />
       <None Remove="StaticFiles\README.md" />
       <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="Templates\Code.PomXml.liquid" />
+      <EmbeddedResource Include="Templates\Code.PomXml.liquid" />
     </ItemGroup>
 </Project>

@@ -33,7 +33,23 @@ var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName 
             new {{ field.Type.SourceType }}()
             {
                     {%- for objectField in valueItem.Fields -%}
-                 {{ objectField.FieldName }} = {{ objectField.Value.Value }},
+                        {%- if objectField.Value.Type == "Array" -%}
+                {{ objectField.FieldName }} = new List<string>()
+                {
+                            {%- for objectFieldArrayItem in objectField.Value.Items -%}
+                    {{ objectFieldArrayItem.Value }},
+                            {%- endfor -%}
+                } 
+                        {%- else -%}
+                {{ objectField.FieldName }} = {{ objectField.Value.Value }},
+                        {%- endif -%}
+                    {%- endfor -%}
+            },
+                {%- elsif valueItem.Type == "Array" -%}
+            new List<{{ field.Type.SourceType }}>()
+            {
+                    {%- for subValueItem in valueItem.Items -%}
+                {{ subValueItem.Value }},
                     {%- endfor -%}
             },
                 {%- else -%}

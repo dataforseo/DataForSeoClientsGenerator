@@ -49,6 +49,12 @@
       <None Remove="StaticFiles\jest.config.cjs" />
       <EmbeddedResource Include="StaticFiles\jest.config.cjs" />
       <None Remove="StaticFiles\postproccess-esm-index.js" />
+      <None Remove="StaticFiles\fix-esm-imports.js" />
+      <EmbeddedResource Include="StaticFiles\fix-esm-imports.js" />
+      <None Remove="StaticFiles\rollup.config.cjs.js" />
+      <EmbeddedResource Include="StaticFiles\rollup.config.cjs.js" />
+      <None Remove="StaticFiles\rollup.config.esm.js" />
+      <EmbeddedResource Include="StaticFiles\rollup.config.esm.js" />
     </ItemGroup>
 
     <ItemGroup>

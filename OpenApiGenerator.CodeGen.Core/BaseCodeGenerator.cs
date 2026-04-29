@@ -1,4 +1,5 @@
 using CodeGenerator.Core;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using OpenApiGenerator.CodeGen.Core.Models;
 using OpenApiGenerator.Utils.Extensions;
@@ -64,8 +65,14 @@ public abstract class BaseCodeGenerator
                         operationBinding.RequestType = Settings.TypeResolver.Resolve(payloadSchema);
                         var refId = payloadSchema.ReferenceId();
                         operationBinding.Payload = [];
-                        foreach (var (name, propSchema) in Document.Components.Schemas[refId].Properties)
+
+                        var examples = (payloadSchema.Example as OpenApiArray).First() as OpenApiObject;
+
+                        var objSchema = Document.Components.Schemas[refId];
+                        foreach (var (name, value) in examples)
                         {
+                            var propSchema = objSchema.Properties[name];
+                            propSchema.Example = value;
                             var item = new LiquidPropertyBinding
                             {
                                 Name = Settings.PropertyNameResolver.Resolve(name),

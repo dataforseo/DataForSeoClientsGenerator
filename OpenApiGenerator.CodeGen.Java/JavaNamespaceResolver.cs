@@ -79,11 +79,13 @@ public class JavaNamespaceResolver : NamespaceResolver
             }
             case LiquidResourceFileBinding resourceFileBinding:
             {
-                root = Path.Combine(root, resourceFileBinding.FilePath);
+                root = Path.Combine(root, resourceFileBinding.FilePath ?? "");
                 if (string.IsNullOrEmpty(resourceFileBinding.ClassName))
                     throw new Exception("Can't define file path before define class name");
         
-                var nmspc = string.Join('/', binding.Namespace.Split('.'));
+                var nmspc = string.IsNullOrEmpty(binding.Namespace)
+                    ? string.Empty 
+                    : string.Join('/', binding.Namespace.Split('.'));
                 
                 file = $"{resourceFileBinding.ClassName}.{resourceFileBinding.FileType}";
         

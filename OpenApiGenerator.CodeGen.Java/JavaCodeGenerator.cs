@@ -112,8 +112,25 @@ public class JavaCodeGenerator : BaseCodeGenerator
         LoadJavaTemplate("Authentication", "auth");
         LoadJavaTemplate("HttpBasicAuth", "auth");
         LoadJavaTemplate("HttpBearerAuth", "auth");
-
+        
+        LoadPomXmlTemplate();
+        
         return artifacts;
+
+        void LoadPomXmlTemplate()
+        {
+            var binding = new LiquidResourceFileBinding("pom")
+            {
+                FileType = "xml",
+                Version = Settings.Version
+            };
+            
+            artifacts.Add(new CodeArtifact()
+            {
+                Code = _factory.CreateTemplate(LiquidConfig.Create($"Code.PomXml", binding)).Render(),
+                FilePath = Settings.NamespaceResolver.ResolveFilePath(binding)
+            });
+        }
 
         void LoadJavaTemplate(string name, string additionalNamespace = "")
         {

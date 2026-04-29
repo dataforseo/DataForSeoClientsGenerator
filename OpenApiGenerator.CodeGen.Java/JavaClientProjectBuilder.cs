@@ -14,7 +14,7 @@ public class JavaClientProjectBuilder
         var root = Path.GetFullPath(Settings.RootFilePath, AppContext.BaseDirectory);
         StaticFiles = new Dictionary<string, string>()
         {
-            ["pom.xml"] = root,
+            // ["pom.xml"] = root,
             ["junit-platform.properties"] = Path.Combine(root, "src", "test", "resources"),
             ["README.md"] = root,
         };
