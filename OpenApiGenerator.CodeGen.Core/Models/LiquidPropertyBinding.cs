@@ -7,6 +7,7 @@ public class LiquidPropertyBinding
     public string Description { get; set; }
     public ResolvedTypeInfo Type { get; set; }
     public bool IsRequired { get; set; }
+    public bool IsDeprecated { get; set; }
 
     public LiquidPropertyBinding Clone()
     {
@@ -16,7 +17,8 @@ public class LiquidPropertyBinding
             JsonName = JsonName,
             Description = Description,
             Type = Type?.Clone(),
-            IsRequired = IsRequired
+            IsRequired = IsRequired,
+            IsDeprecated = IsDeprecated
         };
     }
 }

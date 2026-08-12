@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,6 +10,38 @@ namespace CodeGenerator.Core;
 
     public class ConversionUtilities
     {
+        private static readonly Regex HtmlAnchorRegex = new(
+            @"<a\s+[^>]*href\s*=\s*[""'](?<href>[^""']+)[""'][^>]*>(?<text>.*?)</a>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlCodeRegex = new(
+            @"<code\b[^>]*>(?<text>.*?)</code>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlStrongRegex = new(
+            @"<(strong|b)\b[^>]*>(?<text>.*?)</\1>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlEmphasisRegex = new(
+            @"<(em|i)\b[^>]*>(?<text>.*?)</\1>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlBreakRegex = new(
+            @"<br\s*/?>",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlParagraphRegex = new(
+            @"</?p\b[^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex HtmlTagRegex = new(
+            @"<[^>]+>",
+            RegexOptions.Compiled);
+
+        private static readonly Regex MultiNewlineRegex = new(
+            @"\n{2,}",
+            RegexOptions.Compiled);
+
         public static string ConvertToLowerCamelCase(string input, bool firstCharacterMustBeAlpha)
         {
             if (string.IsNullOrEmpty(input))
@@ -222,26 +255,152 @@ namespace CodeGenerator.Core;
             }
         }
 
+        /// <summary>
+        /// Converts OpenAPI/HTML descriptions into C# XML-doc markup, then formats continuation lines.
+        /// </summary>
         public static string ConvertCSharpDocs(string input, int tabCount)
         {
+            input = HtmlToCSharpDocs(input);
             input = input?
                         .Replace("\r", string.Empty)
                         .Replace("\n", "\n" + string.Join("", Enumerable.Repeat("    ", tabCount)) + "/// ")
                     ?? string.Empty;
 
-            // TODO: Support more markdown features here
-            var xml = new XText(input).ToString();
-            return Regex.Replace(xml, @"^( *)/// ", m => m.Groups[1] + "/// <br/>", RegexOptions.Multiline);
+            return Regex.Replace(input, @"^( *)/// ", m => m.Groups[1] + "/// <br/>", RegexOptions.Multiline);
         }
 
+        /// <summary>
+        /// Keeps HTML suitable for Javadoc (which natively supports a subset of HTML).
+        /// </summary>
         public static string ConvertJavaDocs(string input, int tabCount)
         {
+            input = HtmlToJavaDocs(input);
             input = input?
                         .Replace("\r", string.Empty)
                         .Replace("\n", "\n" + string.Join("", Enumerable.Repeat("    ", tabCount)) + "* ")
                     ?? string.Empty;
 
             return input;
+        }
+
+        /// <summary>
+        /// Converts HTML descriptions into a single-line markdown-ish string for Python Field(description=...).
+        /// </summary>
+        public static string ConvertPythonDocs(string input)
+        {
+            var text = HtmlToMarkdownDocs(input);
+            return text.Replace("\r", string.Empty).Replace("\n", ". ");
+        }
+
+        /// <summary>
+        /// Converts HTML descriptions into markdown suitable for JSDoc / TSDoc comments.
+        /// </summary>
+        public static string ConvertTypeScriptDocs(string input)
+        {
+            // Avoid prematurely closing the block comment when markdown contains "*/"
+            // (e.g. bold wrapping a wildcard path like **/*).
+            return HtmlToMarkdownDocs(input)
+                .Replace("\r", string.Empty)
+                .Replace("\n", " ")
+                .Replace("*/", "* /");
+        }
+
+        public static string HtmlToCSharpDocs(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input ?? string.Empty;
+
+            var text = WebUtility.HtmlDecode(input);
+            var preserved = new List<string>();
+
+            string Preserve(string xmlSnippet)
+            {
+                var index = preserved.Count;
+                preserved.Add(xmlSnippet);
+                return $"@@DOC{index}@@";
+            }
+
+            text = HtmlAnchorRegex.Replace(text, m =>
+            {
+                var label = EscapeXmlText(FlattenInline(m.Groups["text"].Value));
+                var href = EscapeXmlAttribute(m.Groups["href"].Value);
+                return Preserve($"<see href=\"{href}\">{label}</see>");
+            });
+
+            text = HtmlCodeRegex.Replace(text, m =>
+            {
+                var code = EscapeXmlText(FlattenInline(m.Groups["text"].Value));
+                return Preserve($"<c>{code}</c>");
+            });
+
+            text = HtmlBreakRegex.Replace(text, "\n");
+            text = HtmlParagraphRegex.Replace(text, "\n");
+            text = HtmlTagRegex.Replace(text, string.Empty);
+            text = MultiNewlineRegex.Replace(text, "\n").Trim();
+            text = EscapeXmlText(text);
+
+            return Regex.Replace(text, "@@DOC(\\d+)@@", m => preserved[int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture)]);
+        }
+
+        public static string HtmlToJavaDocs(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input ?? string.Empty;
+
+            var text = WebUtility.HtmlDecode(input);
+            // Javadoc accepts HTML; normalize voids and avoid prematurely closing the comment.
+            text = HtmlBreakRegex.Replace(text, "<br>");
+            text = text.Replace("*/", "* /");
+            return text.Trim();
+        }
+
+        public static string HtmlToMarkdownDocs(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input ?? string.Empty;
+
+            var text = WebUtility.HtmlDecode(input);
+
+            text = HtmlAnchorRegex.Replace(text, m =>
+                $"[{FlattenInline(m.Groups["text"].Value)}]({m.Groups["href"].Value})");
+
+            text = HtmlCodeRegex.Replace(text, m => $"`{FlattenInline(m.Groups["text"].Value)}`");
+            text = HtmlStrongRegex.Replace(text, m => $"**{FlattenInline(m.Groups["text"].Value)}**");
+            text = HtmlEmphasisRegex.Replace(text, m => $"*{FlattenInline(m.Groups["text"].Value)}*");
+            text = HtmlBreakRegex.Replace(text, "\n");
+            text = HtmlParagraphRegex.Replace(text, "\n");
+            text = HtmlTagRegex.Replace(text, string.Empty);
+            text = MultiNewlineRegex.Replace(text, "\n").Trim();
+            return text;
+        }
+
+        private static string FlattenInline(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            text = HtmlTagRegex.Replace(text, string.Empty);
+            return text.Replace("\r", string.Empty).Replace("\n", " ").Trim();
+        }
+
+        private static string EscapeXmlText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return new XText(text).ToString();
+        }
+
+        private static string EscapeXmlAttribute(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return text
+                .Replace("&", "&amp;")
+                .Replace("\"", "&quot;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
         }
 
         private static string CreateWhitespaceString(int wsCount)

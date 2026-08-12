@@ -29,7 +29,8 @@ public class LiquidTemplate
         };
         _templateOptions.Filters.AddFilter("csharpdocs", LiquidFilters.Csharpdocs);
         _templateOptions.Filters.AddFilter("javadocs", LiquidFilters.Javadocs);
-        _templateOptions.Filters.AddFilter("pythondocs", LiquidFilters.Onerow);
+        _templateOptions.Filters.AddFilter("pythondocs", LiquidFilters.Pythondocs);
+        _templateOptions.Filters.AddFilter("tsdocs", LiquidFilters.Tsdocs);
         _templateOptions.Filters.AddFilter("onerow", LiquidFilters.Onerow);
 
         _templateOptions.Filters.AddFilter("join", LiquidFilters.Join);
@@ -179,7 +180,7 @@ static class LiquidFilters
     {
         var tabCount = (int)arguments.At(0).ToNumberValue();
         var converted = ConversionUtilities.ConvertCSharpDocs(input.ToStringValue(), tabCount);
-        return new ValueTask<FluidValue>(new StringValue(converted));
+        return new ValueTask<FluidValue>(new StringValue(converted, encode: false));
     }
 
     public static async ValueTask<FluidValue> SelectField(FluidValue input, FilterArguments arguments, TemplateContext context)
@@ -263,14 +264,26 @@ static class LiquidFilters
     {
         var tabCount = (int)arguments.At(0).ToNumberValue();
         var converted = ConversionUtilities.ConvertJavaDocs(input.ToStringValue(), tabCount);
-        return new ValueTask<FluidValue>(new StringValue(converted));
+        return new ValueTask<FluidValue>(new StringValue(converted, encode: false));
     }
 
 
+    public static ValueTask<FluidValue> Pythondocs(FluidValue input, FilterArguments arguments, TemplateContext context)
+    {
+        var converted = ConversionUtilities.ConvertPythonDocs(input.ToStringValue());
+        return new ValueTask<FluidValue>(new StringValue(converted, encode: false));
+    }
+
+    public static ValueTask<FluidValue> Tsdocs(FluidValue input, FilterArguments arguments, TemplateContext context)
+    {
+        var converted = ConversionUtilities.ConvertTypeScriptDocs(input.ToStringValue());
+        return new ValueTask<FluidValue>(new StringValue(converted, encode: false));
+    }
+
     public static ValueTask<FluidValue> Onerow(FluidValue input, FilterArguments arguments, TemplateContext context)
     {
-        var converted = input.ToStringValue().Replace("\n", ". ");
-        return new ValueTask<FluidValue>(new StringValue(converted));
+        var converted = ConversionUtilities.ConvertPythonDocs(input.ToStringValue());
+        return new ValueTask<FluidValue>(new StringValue(converted, encode: false));
     }
 
     public static ValueTask<FluidValue> CamelCase(FluidValue input, FilterArguments arguments, TemplateContext context)

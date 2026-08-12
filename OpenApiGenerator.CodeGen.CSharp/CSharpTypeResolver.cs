@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using OpenApiGenerator.CodeGen.Core;
 using OpenApiGenerator.Utils.Extensions;
+using System.Globalization;
 
 namespace OpenApiGenerator.CodeGen.CSharp;
 
@@ -93,21 +94,17 @@ public class CSharpTypeResolver : TypeResolver
     {
         var res = schema switch
         {
-            OpenApiString str => str.Value,
-            OpenApiInteger integer => integer.Value.ToString(),
-            OpenApiLong longValue => longValue.Value.ToString(),
-            OpenApiFloat floatValue => floatValue.Value.ToString() + "f",
-            OpenApiDouble doubleValue => doubleValue.Value.ToString(),
+            OpenApiString str => $"\"{ConversionUtilities.ConvertToStringLiteral(str.Value)}\"",
+            OpenApiInteger integer => integer.Value.ToString(CultureInfo.InvariantCulture),
+            OpenApiLong longValue => longValue.Value.ToString(CultureInfo.InvariantCulture),
+            OpenApiFloat floatValue => floatValue.Value.ToString("R", CultureInfo.InvariantCulture) + "f",
+            OpenApiDouble doubleValue => doubleValue.Value.ToString("R", CultureInfo.InvariantCulture),
             OpenApiBoolean boolValue => boolValue.Value.ToString().ToLower(),
             _ => null
         };
 
         if (string.IsNullOrEmpty(res))
             return null;
-
-        res = res.Replace("\n", "\\n");
-        if (schema is OpenApiString && !res.Contains("\""))
-            res = $"\"{res}\"";
 
         return res;
     }

@@ -3,12 +3,17 @@
 import { {{ type.ClassName }}, I{{ type.ClassName }} } from "./{%- if type.ParentName and type.DiscriminatorValue -%}{{ type.ParentName }}{%- else -%}{{ type.ClassName }}{%- endif -%}";
 {%- endfor -%}
 {% comment %}import { ApiException, throwException } from "./ApiException"{% endcomment %}
+{%- if IsDeprecated -%}
+/** @deprecated */
+{%- endif -%}
 
 export interface I{{ ClassName }} {% if ParentName != nulll %} extends I{{ ParentName }}  {% endif %}  {
     {%- for property in Properties -%}
         
-    {%- if property.Description != null -%}
-        /** {{ property.Description }} */
+    {%- if property.IsDeprecated -%}
+        /** @deprecated {% if property.Description != null %}{{ property.Description | tsdocs }}{% endif %} */
+    {%- elsif property.Description != null -%}
+        /** {{ property.Description | tsdocs }} */
     {%- endif -%}
         {{ property.Name }}?: {{ property.Type.TypeName }} | undefined
     {%- endfor -%}
@@ -17,11 +22,17 @@ export interface I{{ ClassName }} {% if ParentName != nulll %} extends I{{ Paren
 
     }
 
+{%- if IsDeprecated -%}
+/** @deprecated */
+{%- endif -%}
 export class {{ ClassName }} {% if ParentName != null %} extends {{ ParentName }}  {% endif %} implements I{{ ClassName }} {
 {%- for property in Properties -%}
-{%- if property.Description != null -%}
+{%- if property.IsDeprecated -%}
     
-    /** {{ property.Description }} */
+    /** @deprecated {% if property.Description != null %}{{ property.Description | tsdocs }}{% endif %} */
+{% elsif property.Description != null %}
+    
+    /** {{ property.Description | tsdocs }} */
 {% endif %}
     {{ property.Name }}?: {{ property.Type.TypeName }} | undefined;
 {%- endfor -%}

@@ -14,7 +14,7 @@ public class ResolvedTypeInfo
     public string StructureType { get; set; } //structure type
     public ResolvedTypeInfo Of { get; set; }
 
-    public bool HasExamples => !Value.IsEmpty;
+    public bool HasExamples => Value is { IsEmpty: false };
 
     public ResolvedTypeInfo Clone()
     {
@@ -65,6 +65,7 @@ public class ResolvedTypeObjectValueInfo : IResolvedTypeValue
 {
     public ResolvedTypeValueKind Type { get; } = ResolvedTypeValueKind.Object;
     public List<ResolvedTypeObjectFieldInfo> Fields { get; set; }
+    public string SourceType { get; set; }
     public bool IsEmpty => Fields.Count == 0;
 
     public string FieldName { get; set; }
@@ -74,11 +75,14 @@ public class ResolvedTypeObjectValueInfo : IResolvedTypeValue
         return new ResolvedTypeObjectValueInfo
         {
             FieldName = FieldName,
+            SourceType = SourceType,
             Fields = Fields?
                 .Select(x => 
                     new ResolvedTypeObjectFieldInfo()
                     {
-                        FieldName = x.FieldName, 
+                        FieldName = x.FieldName,
+                        JsonName = x.JsonName,
+                        Type = x.Type?.Clone(),
                         Value = x.Value.Clone()
                     })
                 .ToList()
@@ -89,6 +93,9 @@ public class ResolvedTypeObjectValueInfo : IResolvedTypeValue
 public class ResolvedTypeObjectFieldInfo
 {
     public string FieldName { get; set; }
+    public string JsonName { get; set; }
+    public ResolvedTypeInfo Type { get; set; }
+    public string SourceType => Type?.SourceType;
     public IResolvedTypeValue Value { get; set; }
 }
 
@@ -153,6 +160,7 @@ public abstract class TypeResolver
                 Fields = obj.Select(x => new ResolvedTypeObjectFieldInfo()
                 {
                     FieldName = Settings.PropertyNameResolver.Resolve(x.Key),
+                    JsonName = x.Key,
                     Value = ResolveExample(x.Value)
                 }).ToList()
             };

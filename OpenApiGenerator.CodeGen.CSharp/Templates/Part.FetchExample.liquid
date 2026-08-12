@@ -30,16 +30,34 @@ var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName 
         {
             {%- for valueItem in field.Type.Value.Items -%}
                 {%- if valueItem.Type == "Object" -%}
-            new {{ field.Type.SourceType }}()
+            new {{ valueItem.SourceType }}()
             {
                     {%- for objectField in valueItem.Fields -%}
                         {%- if objectField.Value.Type == "Array" -%}
-                {{ objectField.FieldName }} = new List<string>()
+                {{ objectField.FieldName }} = new List<{{ objectField.SourceType }}>()
                 {
                             {%- for objectFieldArrayItem in objectField.Value.Items -%}
+                                {%- if objectFieldArrayItem.Type == "Object" -%}
+                    new {{ objectFieldArrayItem.SourceType }}()
+                    {
+                                    {%- for nestedObjectField in objectFieldArrayItem.Fields -%}
+                                        {%- if nestedObjectField.Value.Type == "Array" -%}
+                        {{ nestedObjectField.FieldName }} = new List<{{ nestedObjectField.SourceType }}>()
+                        {
+                                            {%- for nestedArrayItem in nestedObjectField.Value.Items -%}
+                            {{ nestedArrayItem.Value }},
+                                            {%- endfor -%}
+                        },
+                                        {%- else -%}
+                        {{ nestedObjectField.FieldName }} = {{ nestedObjectField.Value.Value }},
+                                        {%- endif -%}
+                                    {%- endfor -%}
+                    },
+                                {%- else -%}
                     {{ objectFieldArrayItem.Value }},
+                                {%- endif -%}
                             {%- endfor -%}
-                } 
+                },
                         {%- else -%}
                 {{ objectField.FieldName }} = {{ objectField.Value.Value }},
                         {%- endif -%}
@@ -49,7 +67,25 @@ var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName 
             new List<{{ field.Type.SourceType }}>()
             {
                     {%- for subValueItem in valueItem.Items -%}
+                        {%- if subValueItem.Type == "Array" -%}
+                new List<object>()
+                {
+                            {%- for nestedItem in subValueItem.Items -%}
+                                {%- if nestedItem.Type == "Array" -%}
+                    new List<object>()
+                    {
+                                    {%- for deepItem in nestedItem.Items -%}
+                        {{ deepItem.Value }},
+                                    {%- endfor -%}
+                    },
+                                {%- else -%}
+                    {{ nestedItem.Value }},
+                                {%- endif -%}
+                            {%- endfor -%}
+                },
+                        {%- else -%}
                 {{ subValueItem.Value }},
+                        {%- endif -%}
                     {%- endfor -%}
             },
                 {%- else -%}

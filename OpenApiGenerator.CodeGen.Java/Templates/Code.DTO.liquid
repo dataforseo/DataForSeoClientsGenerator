@@ -36,13 +36,21 @@ import io.github.dataforseo.client.JSON;
 {% for type in DenendentTypes %}
 import {{ type.Namespace }}.{{ type.ClassName }};
 {% endfor %}
-
+{%- if IsDeprecated -%}
+/**
+ * @deprecated
+ */
+@Deprecated
+{%- endif -%}
 public class {{ ClassName }} {% if ParentName != null and Parent.Childs != null %} extends {{ ParentName }} {% endif %} {
 
   {%- if ParentName != null and Parent.Childs == null and Parent.Properties.size > 0 -%}
     {% for property in Parent.Properties %}
       {%- assign camelPropertyName = property.Name | camelcase  -%}
   public static final String SERIALIZED_NAME_{{ property.JsonName | screamingcase }} = "{{ property.JsonName }}";
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   @SerializedName(SERIALIZED_NAME_{{ property.JsonName | screamingcase }})
   private {{ property.Type.TypeName }} {{ camelPropertyName }};
     
@@ -53,13 +61,22 @@ public class {{ ClassName }} {% if ParentName != null and Parent.Childs != null 
     
   /**
    * {{ property.Description | javadocs }}
+   {%- if property.IsDeprecated -%}
+   * @deprecated
+   {%- endif -%}
    * @return {{ property.Name }}
    */
   @javax.annotation.Nullable
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   public {{ property.Type.TypeName }} get{{ property.Name | pascalcase }}() {
     return {{ camelPropertyName }};
   }
     
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   public void set{{ property.Name | pascalcase }}({{ property.Type.TypeName }} {{ camelPropertyName }}) {
     this.{{ camelPropertyName }} = {{ camelPropertyName }};
   }
@@ -69,6 +86,9 @@ public class {{ ClassName }} {% if ParentName != null and Parent.Childs != null 
 {% for property in Properties %}
   {%- assign camelPropertyName = property.Name | camelcase  -%}
   public static final String SERIALIZED_NAME_{{ property.JsonName | screamingcase }} = "{{ property.JsonName }}";
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   @SerializedName(SERIALIZED_NAME_{{ property.JsonName | screamingcase }})
   private {{ property.Type.TypeName }} {{ camelPropertyName }};
 
@@ -79,13 +99,22 @@ public class {{ ClassName }} {% if ParentName != null and Parent.Childs != null 
 
   /**
    * {{ property.Description | javadocs }}
+   {%- if property.IsDeprecated -%}
+   * @deprecated
+   {%- endif -%}
    * @return {{ property.Name }}
    */
   @javax.annotation.Nullable
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   public {{ property.Type.TypeName }} get{{ property.Name | pascalcase }}() {
     return {{ camelPropertyName }};
   }
 
+  {%- if property.IsDeprecated -%}
+  @Deprecated
+  {%- endif -%}
   public void set{{ property.Name | pascalcase }}({{ property.Type.TypeName }} {{ camelPropertyName }}) {
     this.{{ camelPropertyName }} = {{ camelPropertyName }};
   }

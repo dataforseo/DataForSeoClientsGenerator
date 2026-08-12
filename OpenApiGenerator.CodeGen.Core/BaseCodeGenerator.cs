@@ -66,26 +66,42 @@ public abstract class BaseCodeGenerator
                         var refId = payloadSchema.ReferenceId();
                         operationBinding.Payload = [];
 
-                        var examples = (payloadSchema.Example as OpenApiArray).First() as OpenApiObject;
-
-                        var objSchema = Document.Components.Schemas[refId];
-                        foreach (var (name, value) in examples)
+                        var examples = (payloadSchema.Example as OpenApiArray)?.FirstOrDefault() as OpenApiObject;
+                        if (examples is not null
+                            && !string.IsNullOrEmpty(refId)
+                            && Document.Components.Schemas.TryGetValue(refId, out var objSchema))
                         {
-                            var propSchema = objSchema.Properties[name];
-                            propSchema.Example = value;
-                            var item = new LiquidPropertyBinding
+                            foreach (var (name, value) in examples)
                             {
-                                Name = Settings.PropertyNameResolver.Resolve(name),
-                                JsonName = name,
-                                Type = Settings.TypeResolver.Resolve(propSchema),
-                                IsRequired = propSchema.Nullable is not true,
-                                Description = propSchema.Description,
-                            };
+                                try
+                                {
+                                    if (!objSchema.Properties.TryGetValue(name, out var propSchema))
+                                        continue;
 
-                            if (!item.Type.HasExamples)
-                                continue;
+                                    propSchema.Example = value;
+                                    var item = new LiquidPropertyBinding
+                                    {
+                                        Name = Settings.PropertyNameResolver.Resolve(name),
+                                        JsonName = name,
+                                        Type = Settings.TypeResolver.Resolve(propSchema),
+                                        IsRequired = propSchema.Nullable is not true,
+                                        Description = propSchema.Description,
+                                        IsDeprecated = propSchema.Deprecated,
+                                    };
+
+                                    BindExampleTypes(item.Type.Value, propSchema);
+                                
+                                    if (!item.Type.HasExamples)
+                                        continue;
                             
-                            operationBinding.Payload.Add(item);
+                                    operationBinding.Payload.Add(item);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    continue;
+                                }
+                            }
                         }
                     }
 
@@ -128,7 +144,10 @@ public abstract class BaseCodeGenerator
         //process dto
         foreach (var (name, schema) in Document.Components.Schemas)
         {
-            var dtoCodeBinding = new LiquidDtoBinding(name);
+            var dtoCodeBinding = new LiquidDtoBinding(name)
+            {
+                IsDeprecated = schema.Deprecated
+            };
             Settings.NamespaceResolver.ResolveNamespace(dtoCodeBinding);
             Settings.NamespaceResolver.ResolveFilePath(dtoCodeBinding);
 
@@ -149,6 +168,7 @@ public abstract class BaseCodeGenerator
             {
                 dtoCodeBinding.ParentName = schema.AllOf[0].ReferenceName();
                 properties = schema.AllOf[1].Properties;
+                dtoCodeBinding.IsDeprecated = dtoCodeBinding.IsDeprecated || schema.AllOf[1].Deprecated;
             }
 
             var propertyBindings = BindProperties(properties);
@@ -222,6 +242,9 @@ public abstract class BaseCodeGenerator
                 foreach (var (discriminatorValue, className) in dtoBinding.ChildNames)
                 {
                     var child = dtoBindings.FirstOrDefault(x => x.ClassName == className);
+                    if (child == null)
+                        continue;
+
                     child.Parent = dtoBinding;
                     child.DiscriminatorValue = discriminatorValue;
                     dtoBinding.Childs.Add(child);
@@ -242,13 +265,16 @@ public abstract class BaseCodeGenerator
                 var dependedTypeBinding = SetupDependentTypes(dtoBinding.ParentName);
                 if (dependedTypeBinding != null)
                     dtoBinding.DependentTypes.Add(dependedTypeBinding);
-                
+
                 var parent = dtoBindings.FirstOrDefault(x => x.ClassName == dtoBinding.ParentName);
-                foreach (var property in parent.Properties)
+                if (parent?.Properties != null)
                 {
-                    var parentDependedTypeBinding = SetupDependentTypes(property.Type.TypeName);
-                    if (parentDependedTypeBinding != null && parentDependedTypeBinding.ClassName != dtoBinding.ClassName)
-                        dtoBinding.DependentTypes.Add(parentDependedTypeBinding);
+                    foreach (var property in parent.Properties)
+                    {
+                        var parentDependedTypeBinding = SetupDependentTypes(property.Type.TypeName);
+                        if (parentDependedTypeBinding != null && parentDependedTypeBinding.ClassName != dtoBinding.ClassName)
+                            dtoBinding.DependentTypes.Add(parentDependedTypeBinding);
+                    }
                 }
             }
 
@@ -311,7 +337,8 @@ public abstract class BaseCodeGenerator
                     Name = propName,
                     Type = Settings.TypeResolver.Resolve(propertySchema),
                     Description = propertySchema.Description?.Replace("\"", "'"),
-                    JsonName = propertyName
+                    JsonName = propertyName,
+                    IsDeprecated = propertySchema.Deprecated
                 });
             }
             catch (Exception e)
@@ -322,5 +349,62 @@ public abstract class BaseCodeGenerator
         }
 
         return bindings;
+    }
+
+    private void BindExampleTypes(IResolvedTypeValue value, OpenApiSchema schema)
+    {
+        if (value is null || schema is null)
+            return;
+
+        if (value is ResolvedTypeArrayValueInfo arrayValue && schema.Type == "array")
+        {
+            foreach (var item in arrayValue.Items)
+                BindExampleTypes(item, schema.Items);
+            return;
+        }
+
+        if (value is ResolvedTypeObjectValueInfo unresolvedObjectValue)
+            unresolvedObjectValue.SourceType = schema.ReferenceId();
+
+        schema = ResolveSchema(schema);
+
+        if (value is not ResolvedTypeObjectValueInfo objectValue)
+            return;
+
+        if (schema.Discriminator?.Mapping is { Count: > 0 })
+        {
+            var childType = schema.Discriminator.Mapping
+                .FirstOrDefault(mapping => objectValue.Fields.Any(field =>
+                    string.Equals(field.JsonName, mapping.Key, StringComparison.OrdinalIgnoreCase)))
+                .Value;
+
+            if (!string.IsNullOrEmpty(childType))
+                objectValue.SourceType = childType.Split('/').Last();
+        }
+
+        if (schema.Properties is null)
+            return;
+
+        foreach (var field in objectValue.Fields)
+        {
+            if (!schema.Properties.TryGetValue(field.JsonName, out var fieldSchema))
+                continue;
+
+            field.Type = Settings.TypeResolver.Resolve(fieldSchema);
+            BindExampleTypes(field.Value, fieldSchema);
+        }
+    }
+
+    private OpenApiSchema ResolveSchema(OpenApiSchema schema)
+    {
+        var referenceId = schema.ReferenceId();
+        if (!string.IsNullOrEmpty(referenceId)
+            && Document.Components.Schemas.TryGetValue(referenceId, out var referencedSchema))
+            return referencedSchema;
+
+        if (schema.OneOf is { Count: 1 })
+            return ResolveSchema(schema.OneOf[0]);
+
+        return schema;
     }
 }

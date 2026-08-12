@@ -44,6 +44,7 @@ public class LiquidDtoBinding : LiquidCodegenBinding
     }
 
     public bool IsParent { get; set; }
+    public bool IsDeprecated { get; set; }
     public string DiscriminatorProperty { get; set; }
     public string DiscriminatorValue { get; set; }
     public string ParentName { get; set; }
