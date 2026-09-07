@@ -13,7 +13,7 @@ var dfsClient = new DataForSeoClient(new DataForSeoClientConfiguration()
 dfsClient.{{ operation.ApiName }}.BaseUrl = "https://sandbox.dataforseo.com";
 {%- endif -%}
 {%- if operation.HttpMethod == "POST" -%}
-var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async(new List<{{ operation.RequestType.SourceType }}>()
+var result = await {% if operation.ForTests %}TestHelper.ExecuteWithSandboxFallback(() => {% endif %}dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async(new List<{{ operation.RequestType.SourceType }}>()
 {
     new()
     {
@@ -98,12 +98,12 @@ var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName 
         {%- endif -%}
         {%- endfor -%}
     }
-}); 
+}){% if operation.ForTests %}, () => dfsClient.{{ operation.ApiName }}.BaseUrl = "https://api.dataforseo.com"){% endif %};
 {%- else -%}
     {%- if operation.GetParameter != null -%}
 var {{ operation.GetParameter.Name }} = {{ operation.GetParameter.Type.Value.Value }};
-var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async({{ operation.GetParameter.Name }});
+var result = await {% if operation.ForTests %}TestHelper.ExecuteWithSandboxFallback(() => {% endif %}dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async({{ operation.GetParameter.Name }}){% if operation.ForTests %}, () => dfsClient.{{ operation.ApiName }}.BaseUrl = "https://api.dataforseo.com"){% endif %};
     {%- else -%}
-var result = await dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async();
+var result = await {% if operation.ForTests %}TestHelper.ExecuteWithSandboxFallback(() => {% endif %}dfsClient.{{ operation.ApiName }}.{{ operation.OperationName }}Async(){% if operation.ForTests %}, () => dfsClient.{{ operation.ApiName }}.BaseUrl = "https://api.dataforseo.com"){% endif %};
     {% endif -%}
 {%- endif -%}
