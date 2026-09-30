@@ -53,6 +53,8 @@
       <EmbeddedResource Include="StaticFiles\pytest.ini" />
       <None Remove="StaticFiles\README.md" />
       <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="StaticFiles\SKILL.md" />
+      <EmbeddedResource Include="StaticFiles\SKILL.md" />
       <None Remove="StaticFiles\vscode_launch.json" />
       <EmbeddedResource Include="StaticFiles\vscode_launch.json" />
       <None Remove="StaticFiles\vscode_settings.json" />

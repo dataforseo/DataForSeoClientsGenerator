@@ -51,6 +51,8 @@
       <EmbeddedResource Include="Templates\Test.API.liquid" />
       <None Remove="StaticFiles\README.md" />
       <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="StaticFiles\SKILL.md" />
+      <EmbeddedResource Include="StaticFiles\SKILL.md" />
       <Compile Remove="StaticFiles\TestHelper.cs" />
       <EmbeddedResource Include="StaticFiles\TestHelper.cs" />
       <None Remove="Templates\ProjectFile.liquid" />

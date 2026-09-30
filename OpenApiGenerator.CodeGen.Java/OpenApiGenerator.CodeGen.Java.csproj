@@ -104,6 +104,8 @@
       <EmbeddedResource Include="Templates\Test.API.liquid" />
       <None Remove="StaticFiles\README.md" />
       <EmbeddedResource Include="StaticFiles\README.md" />
+      <None Remove="StaticFiles\SKILL.md" />
+      <EmbeddedResource Include="StaticFiles\SKILL.md" />
       <None Remove="Templates\Code.PomXml.liquid" />
       <EmbeddedResource Include="Templates\Code.PomXml.liquid" />
     </ItemGroup>

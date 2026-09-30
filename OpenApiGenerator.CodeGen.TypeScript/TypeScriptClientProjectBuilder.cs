@@ -23,6 +23,7 @@ public class TypeScriptClientProjectBuilder
             // ["rollup.config.esm.js"] = root,
             ["jest.config.cjs"] = root,
             ["README.md"] = root,
+            ["SKILL.md"] = root,
         };
     }
 

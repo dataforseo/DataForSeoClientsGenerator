@@ -58,6 +58,14 @@ public class PythonClientProjectBuilder
             {
                 SavePathes = [Path.Combine(root, "src")]
             },
+            ["SKILL.md"] = new()
+            {
+                SavePathes =
+                [
+                    Path.Combine(root, "src"),
+                    Path.Combine(root, "src/dataforseo_client"),
+                ]
+            },
             ["vscode_launch.json"] = new()
             {
                 FileName = "launch.json",
