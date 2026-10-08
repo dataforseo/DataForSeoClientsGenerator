@@ -8,12 +8,12 @@ Knowledge base for `{{ ApiName }}` of the DataForSEO TypeScript client. Naming r
 
 Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password. The examples use top-level `await` (ES module) and the global `fetch` (Node 18+ or a browser).
 {% for operation in Examples %}
-### {{ forloop.index }}. {{ operation.OperationName }}
+### {{ operation.OperationName }}
 
 `{{ operation.HttpMethod }} {{ operation.Path }}`
 
 ```typescript
-import {{ "{" }} {{ operation.ApiName }}{% if operation.HttpMethod == "POST" %}, {{ operation.RequestType.SourceType }}{% endif %} {{ "}" }} from "dataforseo-client";
+import {{ "{" }} {{ operation.ApiName }}{% if operation.HttpMethod == "POST" %}, {{ operation.RequestType.SourceType }}{% endif %}{% for type in operation.ExampleTypes %}, {{ type }}{% endfor %} {{ "}" }} from "dataforseo-client";
 
 {% template Part.FetchExample %}
 ```

@@ -8,7 +8,7 @@ Knowledge base for `{{ ApiName }}` (`dataforseo_client.api.{{ ApiName | snakecas
 
 Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password.
 {% for operation in Examples %}
-### {{ forloop.index }}. {{ operation.OperationName }}
+### {{ operation.OperationName }}
 
 `{{ operation.HttpMethod }} {{ operation.Path }}`
 
@@ -18,6 +18,9 @@ from dataforseo_client.api.{{ operation.ApiName | snakecase }} import {{ operati
 {%- if operation.HttpMethod == "POST" -%}
 from dataforseo_client.models.{{ operation.RequestType.SourceType | snakecase }} import {{ operation.RequestType.SourceType }}
 {%- endif -%}
+{%- for type in operation.ExampleTypes -%}
+from dataforseo_client.models.{{ type | snakecase }} import {{ type }}
+{%- endfor -%}
 
 {% template Part.FetchExample %}
 ```

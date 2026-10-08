@@ -14,6 +14,8 @@ public class LiquidOperationBinding
     public LiquidDtoBinding RequestTypeBinding { get; set; }
     public LiquidPropertyBinding GetParameter { get; set; } 
     public List<LiquidPropertyBinding> Payload { get; set; }
+    /// <summary>Model classes instantiated inside <see cref="Payload"/> example values (nested objects and polymorphic children).</summary>
+    public List<string> ExampleTypes { get; set; } = [];
     public string ApiName { get; set; }
     public string UserAgent { get; set; }
     public bool ForTests { get; set; }
@@ -33,6 +35,7 @@ public class LiquidOperationBinding
             RequestType = RequestType?.Clone(),
             GetParameter = GetParameter?.Clone(),
             Payload = Payload?.Select(x => x.Clone())?.ToList(),
+            ExampleTypes = ExampleTypes?.ToList(),
             ApiName = ApiName,
             UserAgent = UserAgent
         };

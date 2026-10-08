@@ -102,6 +102,7 @@ public abstract class BaseCodeGenerator
                                     };
 
                                     BindExampleTypes(item.Type.Value, propSchema);
+                                    RemoveEmptyExampleValues(item.Type.Value);
                                 
                                     if (!item.Type.HasExamples)
                                         continue;
@@ -115,6 +116,9 @@ public abstract class BaseCodeGenerator
                                 }
                             }
                         }
+
+                        foreach (var item in operationBinding.Payload)
+                            CollectExampleTypes(item.Type.Value, operationBinding.ExampleTypes);
                     }
 
                     if (type == OperationType.Get)
@@ -237,7 +241,15 @@ public abstract class BaseCodeGenerator
             //add dependent types for tests
             var testBinding = pool.OfType<LiquidApiTestsBinding>().FirstOrDefault(x => x.ApiName == apiBinding.ClassName);
             if (testBinding != null)
+            {
                 testBinding.DependentTypes.AddRange(apiBinding.DependentTypes);
+                testBinding.ExampleTypes = apiBinding.Operations
+                    .SelectMany(x => x.ExampleTypes)
+                    .Distinct()
+                    .Where(x => testBinding.DependentTypes.All(type => type.ClassName != x)
+                                && dtoBindings.Any(type => type.ClassName == x))
+                    .ToList();
+            }
             
             pool.Add(apiBinding);
         }
@@ -489,7 +501,14 @@ public abstract class BaseCodeGenerator
                 .Value;
 
             if (!string.IsNullOrEmpty(childType))
+            {
                 objectValue.SourceType = childType.Split('/').Last();
+                // fluent setters inherited from the parent return the parent type (Java), so child-only fields go first
+                var parentProperties = schema.Properties;
+                objectValue.Fields = objectValue.Fields
+                    .OrderBy(field => parentProperties?.ContainsKey(field.JsonName) == true)
+                    .ToList();
+            }
         }
 
         if (schema.Properties is null)
@@ -502,6 +521,40 @@ public abstract class BaseCodeGenerator
 
             field.Type = Settings.TypeResolver.Resolve(fieldSchema);
             BindExampleTypes(field.Value, fieldSchema);
+        }
+    }
+
+    private static void RemoveEmptyExampleValues(IResolvedTypeValue value)
+    {
+        switch (value)
+        {
+            case ResolvedTypeArrayValueInfo arrayValue:
+                foreach (var item in arrayValue.Items)
+                    RemoveEmptyExampleValues(item);
+                arrayValue.Items = arrayValue.Items.Where(item => item is { IsEmpty: false }).ToList();
+                break;
+            case ResolvedTypeObjectValueInfo objectValue:
+                foreach (var field in objectValue.Fields)
+                    RemoveEmptyExampleValues(field.Value);
+                objectValue.Fields.RemoveAll(field => field.Value is null or { IsEmpty: true });
+                break;
+        }
+    }
+
+    private static void CollectExampleTypes(IResolvedTypeValue value, List<string> types)
+    {
+        switch (value)
+        {
+            case ResolvedTypeArrayValueInfo arrayValue:
+                foreach (var item in arrayValue.Items)
+                    CollectExampleTypes(item, types);
+                break;
+            case ResolvedTypeObjectValueInfo objectValue:
+                if (!string.IsNullOrEmpty(objectValue.SourceType) && !types.Contains(objectValue.SourceType))
+                    types.Add(objectValue.SourceType);
+                foreach (var field in objectValue.Fields)
+                    CollectExampleTypes(field.Value, types);
+                break;
         }
     }
 

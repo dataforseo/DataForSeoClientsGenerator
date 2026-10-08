@@ -28,6 +28,8 @@
       <EmbeddedResource Include="Templates\Part.ApiOperation.liquid" />
       <None Remove="Templates\Part.FetchExample.liquid" />
       <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Part.ExampleValue.liquid" />
+      <EmbeddedResource Include="Templates\Part.ExampleValue.liquid" />
       <None Remove="Templates\Test.API.liquid" />
       <EmbeddedResource Include="Templates\Test.API.liquid" />
       <None Remove="Templates\Code.API.liquid" />

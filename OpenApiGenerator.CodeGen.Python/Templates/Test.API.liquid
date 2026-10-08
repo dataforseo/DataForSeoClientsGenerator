@@ -8,6 +8,9 @@ from dataforseo_client.api.{{ ApiName | snakecase }} import {{ ApiName }}
 {%- for type in DependentTypes -%}
 from {{ type.Namespace }}.{{ type.ClassName | snakecase }} import {{ type.ClassName }}
 {%- endfor -%}
+{%- for type in ExampleTypes -%}
+from dataforseo_client.models.{{ type | snakecase }} import {{ type }}
+{%- endfor -%}
 
 class {{ ClassName }}(unittest.TestCase):
 

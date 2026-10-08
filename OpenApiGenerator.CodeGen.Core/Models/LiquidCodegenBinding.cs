@@ -33,6 +33,8 @@ public class LiquidApiTestsBinding : LiquidCodegenBinding
     
     public ICollection<LiquidOperationBinding> Operations { get; set; } = [];
     public List<LiquidDtoBinding> DependentTypes { get; set; } = [];
+    /// <summary>Model classes used inside request examples that are not listed in <see cref="DependentTypes"/>.</summary>
+    public List<string> ExampleTypes { get; set; } = [];
 }
 
 public class LiquidDtoBinding : LiquidCodegenBinding

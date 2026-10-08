@@ -16,29 +16,10 @@ with dfs_api_provider.ApiClient(configuration) as api_client:
     {%- if operation.HttpMethod == "POST" -%}
     response = {{ operation.ApiName | snakecase }}.{{ operation.OperationName }}([{{ operation.RequestType.SourceType }}(
         {%- for field in operation.Payload -%}
-            {%- if field.Type.StructureType == "Dictionary" -%}
-            {{ field.Name }}={
-                {%- for valueInfo in field.Type.Value -%}
-                    {{ valueInfo.Name }}: {{ valueInfo.Value }},
-                {%- endfor -%}
-                },
-            {%- elsif field.Type.StructureType == "Array" -%}
-            {{ field.Name }}=[
-                {%- for valueItem in field.Type.Value.Items -%}
-                    {%- if valueItem.Type == "Object" -%}
-                {{ field.Type.SourceType }}(
-                        {%- for objectField in valueItem.Fields -%}
-                    {{ objectField.FieldName }}={{ objectField.Value.Value }},
-                        {%- endfor -%}
-                ),
-                    {%- else -%}
-                {{ valueItem.Value }},
-                    {%- endif -%}
-                {%- endfor -%}
-                ],
-            {%- else -%}
-            {{ field.Name }}={{ field.Type.Value.Value }},
-            {%- endif -%}
+            {%- assign exampleValue = field.Type.Value -%}
+            {%- assign examplePrefix = field.Name | append: "=" -%}
+            {%- assign exampleSuffix = "," -%}
+        {% template Part.ExampleValue %}
         {%- endfor -%}
     )]
 {%- if operation.ForTests -%}
