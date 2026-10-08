@@ -18,84 +18,11 @@ var result = await {% if operation.ForTests %}TestHelper.ExecuteWithSandboxFallb
     new()
     {
         {%- for field in operation.Payload -%}
-        {%- if field.Type.StructureType == "Dictionary" -%}
-        {{ field.Name }} = new Dictionary<string, {{ field.Type.Of.TypeName }}>()
-        {
-            {%- for fieldValue in field.Type.Value.Fields -%}
-            ["{{ fieldValue.FieldName }}"] = {{ fieldValue.Value.Value }},
-            {%- endfor -%}
-        },
-        {%- elsif field.Type.StructureType == "Array" -%}
-        {{ field.Name }} = new List<{{ field.Type.SourceType }}>()
-        {
-            {%- for valueItem in field.Type.Value.Items -%}
-                {%- if valueItem.Type == "Object" -%}
-            new {{ valueItem.SourceType }}()
-            {
-                    {%- for objectField in valueItem.Fields -%}
-                        {%- if objectField.Value.Type == "Array" -%}
-                {{ objectField.FieldName }} = new List<{{ objectField.SourceType }}>()
-                {
-                            {%- for objectFieldArrayItem in objectField.Value.Items -%}
-                                {%- if objectFieldArrayItem.Type == "Object" -%}
-                    new {{ objectFieldArrayItem.SourceType }}()
-                    {
-                                    {%- for nestedObjectField in objectFieldArrayItem.Fields -%}
-                                        {%- if nestedObjectField.Value.Type == "Array" -%}
-                        {{ nestedObjectField.FieldName }} = new List<{{ nestedObjectField.SourceType }}>()
-                        {
-                                            {%- for nestedArrayItem in nestedObjectField.Value.Items -%}
-                            {{ nestedArrayItem.Value }},
-                                            {%- endfor -%}
-                        },
-                                        {%- else -%}
-                        {{ nestedObjectField.FieldName }} = {{ nestedObjectField.Value.Value }},
-                                        {%- endif -%}
-                                    {%- endfor -%}
-                    },
-                                {%- else -%}
-                    {{ objectFieldArrayItem.Value }},
-                                {%- endif -%}
-                            {%- endfor -%}
-                },
-                        {%- else -%}
-                {{ objectField.FieldName }} = {{ objectField.Value.Value }},
-                        {%- endif -%}
-                    {%- endfor -%}
-            },
-                {%- elsif valueItem.Type == "Array" -%}
-            new List<{{ field.Type.SourceType }}>()
-            {
-                    {%- for subValueItem in valueItem.Items -%}
-                        {%- if subValueItem.Type == "Array" -%}
-                new List<object>()
-                {
-                            {%- for nestedItem in subValueItem.Items -%}
-                                {%- if nestedItem.Type == "Array" -%}
-                    new List<object>()
-                    {
-                                    {%- for deepItem in nestedItem.Items -%}
-                        {{ deepItem.Value }},
-                                    {%- endfor -%}
-                    },
-                                {%- else -%}
-                    {{ nestedItem.Value }},
-                                {%- endif -%}
-                            {%- endfor -%}
-                },
-                        {%- else -%}
-                {{ subValueItem.Value }},
-                        {%- endif -%}
-                    {%- endfor -%}
-            },
-                {%- else -%}
-            {{ valueItem.Value }},
-                {%- endif -%}
-            {%- endfor -%}
-        },
-        {%- else -%}
-        {{ field.Name }} = {{ field.Type.Value.Value }},
-        {%- endif -%}
+            {%- assign exampleValue = field.Type.Value -%}
+            {%- assign exampleType = field.Type -%}
+            {%- assign examplePrefix = field.Name | append: " = " -%}
+            {%- assign exampleSuffix = "," -%}
+        {% template Part.ExampleValue %}
         {%- endfor -%}
     }
 }){% if operation.ForTests %}, () => dfsClient.{{ operation.ApiName }}.BaseUrl = "https://api.dataforseo.com"){% endif %};

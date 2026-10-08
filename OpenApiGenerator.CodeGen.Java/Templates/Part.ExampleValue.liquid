@@ -1,0 +1,48 @@
+{%- assign current = exampleValue -%}
+{%- assign currentType = exampleType -%}
+{%- assign currentPrefix = examplePrefix -%}
+{%- assign currentSuffix = exampleSuffix -%}
+{%- if current.Type == "Array" -%}
+{{ currentPrefix }}List.of(
+    {%- for item in current.Items -%}
+        {%- assign exampleValue = item -%}
+        {%- assign exampleType = currentType.Of -%}
+        {%- assign examplePrefix = "" -%}
+        {%- if forloop.last -%}{%- assign exampleSuffix = "" -%}{%- else -%}{%- assign exampleSuffix = "," -%}{%- endif -%}
+    {% template Part.ExampleValue %}
+    {%- endfor -%}
+){{ currentSuffix }}
+{%- elsif current.Type == "Object" -%}
+    {%- if current.SourceType != nil and current.SourceType != empty -%}
+{{ currentPrefix }}new {{ current.SourceType }}()
+        {%- for field in current.Fields -%}
+            {%- assign exampleValue = field.Value -%}
+            {%- assign exampleType = field.Type -%}
+            {%- assign examplePrefix = "." | append: field.FieldName | append: "(" -%}
+            {%- if forloop.last -%}{%- assign exampleSuffix = ")" | append: currentSuffix -%}{%- else -%}{%- assign exampleSuffix = ")" -%}{%- endif -%}
+    {% template Part.ExampleValue %}
+        {%- endfor -%}
+    {%- else -%}
+{{ currentPrefix }}Map.ofEntries(
+        {%- for field in current.Fields -%}
+            {%- assign exampleValue = field.Value -%}
+            {%- assign exampleType = currentType.Of -%}
+            {%- assign examplePrefix = 'Map.entry("' | append: field.JsonName | append: '", ' -%}
+            {%- if forloop.last -%}{%- assign exampleSuffix = ")" -%}{%- else -%}{%- assign exampleSuffix = ")," -%}{%- endif -%}
+    {% template Part.ExampleValue %}
+        {%- endfor -%}
+){{ currentSuffix }}
+    {%- endif -%}
+{%- else -%}
+    {%- assign literal = current.Value -%}
+    {%- unless literal contains '"' -%}
+        {%- if currentType.TypeName == "Long" -%}
+            {%- assign literal = literal | remove: "l" | append: "L" -%}
+        {%- elsif currentType.TypeName == "Double" -%}
+            {%- assign literal = literal | remove: "d" | remove: "f" | append: "d" -%}
+        {%- elsif currentType.TypeName == "Float" -%}
+            {%- assign literal = literal | remove: "d" | remove: "f" | append: "f" -%}
+        {%- endif -%}
+    {%- endunless -%}
+{{ currentPrefix }}{{ literal }}{{ currentSuffix }}
+{%- endif -%}

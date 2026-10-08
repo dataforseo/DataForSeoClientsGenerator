@@ -493,6 +493,8 @@ public abstract class BaseCodeGenerator
         if (value is not ResolvedTypeObjectValueInfo objectValue)
             return;
 
+        var properties = new Dictionary<string, OpenApiSchema>(schema.Properties ?? new Dictionary<string, OpenApiSchema>());
+
         if (schema.Discriminator?.Mapping is { Count: > 0 })
         {
             var childType = schema.Discriminator.Mapping
@@ -502,21 +504,28 @@ public abstract class BaseCodeGenerator
 
             if (!string.IsNullOrEmpty(childType))
             {
-                objectValue.SourceType = childType.Split('/').Last();
+                var childName = childType.Split('/').Last();
+                objectValue.SourceType = childName;
                 // fluent setters inherited from the parent return the parent type (Java), so child-only fields go first
                 var parentProperties = schema.Properties;
                 objectValue.Fields = objectValue.Fields
                     .OrderBy(field => parentProperties?.ContainsKey(field.JsonName) == true)
                     .ToList();
+
+                if (Document.Components.Schemas.TryGetValue(childName, out var childSchema))
+                {
+                    var childProperties = childSchema.AllOf is { Count: 2 }
+                        ? childSchema.AllOf[1].Properties
+                        : childSchema.Properties;
+                    foreach (var (name, propertySchema) in childProperties ?? new Dictionary<string, OpenApiSchema>())
+                        properties.TryAdd(name, propertySchema);
+                }
             }
         }
 
-        if (schema.Properties is null)
-            return;
-
         foreach (var field in objectValue.Fields)
         {
-            if (!schema.Properties.TryGetValue(field.JsonName, out var fieldSchema))
+            if (!properties.TryGetValue(field.JsonName, out var fieldSchema))
                 continue;
 
             field.Type = Settings.TypeResolver.Resolve(fieldSchema);

@@ -33,6 +33,8 @@
       <EmbeddedResource Include="Templates\Documentation.DTO.liquid" />
       <None Remove="Templates\Part.FetchExample.liquid" />
       <EmbeddedResource Include="Templates\Part.FetchExample.liquid" />
+      <None Remove="Templates\Part.ExampleValue.liquid" />
+      <EmbeddedResource Include="Templates\Part.ExampleValue.liquid" />
       <None Remove="Templates\Code.API.liquid" />
       <EmbeddedResource Include="Templates\Code.API.liquid" />
       <None Remove="Templates\Code.DTO.liquid" />

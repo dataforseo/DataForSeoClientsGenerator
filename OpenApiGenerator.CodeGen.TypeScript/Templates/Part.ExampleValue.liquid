@@ -1,0 +1,35 @@
+{%- assign current = exampleValue -%}
+{%- assign currentPrefix = examplePrefix -%}
+{%- assign currentSuffix = exampleSuffix -%}
+{%- if current.Type == "Array" -%}
+{{ currentPrefix }}[
+  {%- for item in current.Items -%}
+    {%- assign exampleValue = item -%}
+    {%- assign examplePrefix = "" -%}
+    {%- assign exampleSuffix = "," -%}
+  {% template Part.ExampleValue %}
+  {%- endfor -%}
+]{{ currentSuffix }}
+{%- elsif current.Type == "Object" -%}
+  {%- if current.SourceType != nil and current.SourceType != empty -%}
+{{ currentPrefix }}new {{ current.SourceType }}({
+    {%- for field in current.Fields -%}
+      {%- assign exampleValue = field.Value -%}
+      {%- assign examplePrefix = field.FieldName | append: ": " -%}
+      {%- assign exampleSuffix = "," -%}
+  {% template Part.ExampleValue %}
+    {%- endfor -%}
+}){{ currentSuffix }}
+  {%- else -%}
+{{ currentPrefix }}{
+    {%- for field in current.Fields -%}
+      {%- assign exampleValue = field.Value -%}
+      {%- assign examplePrefix = '"' | append: field.JsonName | append: '": ' -%}
+      {%- assign exampleSuffix = "," -%}
+  {% template Part.ExampleValue %}
+    {%- endfor -%}
+}{{ currentSuffix }}
+  {%- endif -%}
+{%- else -%}
+{{ currentPrefix }}{{ current.Value }}{{ currentSuffix }}
+{%- endif -%}

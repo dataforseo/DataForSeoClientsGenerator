@@ -1,0 +1,50 @@
+{%- assign current = exampleValue -%}
+{%- assign currentType = exampleType -%}
+{%- assign currentPrefix = examplePrefix -%}
+{%- assign currentSuffix = exampleSuffix -%}
+{%- if current.Type == "Array" -%}
+    {%- assign itemTypeName = currentType.Of.TypeName | default: "object" -%}
+{{ currentPrefix }}new List<{{ itemTypeName }}>()
+{
+    {%- for item in current.Items -%}
+        {%- assign exampleValue = item -%}
+        {%- assign exampleType = currentType.Of -%}
+        {%- assign examplePrefix = "" -%}
+        {%- assign exampleSuffix = "," -%}
+    {% template Part.ExampleValue %}
+    {%- endfor -%}
+}{{ currentSuffix }}
+{%- elsif current.Type == "Object" -%}
+    {%- if current.SourceType != nil and current.SourceType != empty -%}
+{{ currentPrefix }}new {{ current.SourceType }}()
+{
+        {%- for field in current.Fields -%}
+            {%- assign exampleValue = field.Value -%}
+            {%- assign exampleType = field.Type -%}
+            {%- assign examplePrefix = field.FieldName | append: " = " -%}
+            {%- assign exampleSuffix = "," -%}
+    {% template Part.ExampleValue %}
+        {%- endfor -%}
+}{{ currentSuffix }}
+    {%- else -%}
+        {%- assign valueTypeName = currentType.Of.TypeName | default: "object" -%}
+{{ currentPrefix }}new Dictionary<string, {{ valueTypeName }}>()
+{
+        {%- for field in current.Fields -%}
+            {%- assign exampleValue = field.Value -%}
+            {%- assign exampleType = currentType.Of -%}
+            {%- assign examplePrefix = '["' | append: field.JsonName | append: '"] = ' -%}
+            {%- assign exampleSuffix = "," -%}
+    {% template Part.ExampleValue %}
+        {%- endfor -%}
+}{{ currentSuffix }}
+    {%- endif -%}
+{%- else -%}
+    {%- assign literal = current.Value -%}
+    {%- if currentType.SourceType == "float" -%}
+        {%- unless literal contains '"' or literal contains "f" -%}
+            {%- assign literal = literal | append: "f" -%}
+        {%- endunless -%}
+    {%- endif -%}
+{{ currentPrefix }}{{ literal }}{{ currentSuffix }}
+{%- endif -%}
