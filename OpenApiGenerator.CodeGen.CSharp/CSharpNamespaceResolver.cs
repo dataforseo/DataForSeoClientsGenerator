@@ -99,6 +99,16 @@ public class CSharpNamespaceResolver : NamespaceResolver
                 binding.FilePath = Path.Combine(root, "Api", file);
                 return binding.FilePath;
             }
+            case LiquidKnowledgeBaseApiBinding:
+            {
+                binding.FilePath = Path.Combine(root, "src", "knowledge-base", $"{binding.ClassName}.md");
+                return binding.FilePath;
+            }
+            case LiquidKnowledgeBaseSkillBinding:
+            {
+                binding.FilePath = Path.Combine(root, "src", "SKILL.md");
+                return binding.FilePath;
+            }
             case LiquidMainClientBinding:
             {
                 root = Path.Combine(root, "src");

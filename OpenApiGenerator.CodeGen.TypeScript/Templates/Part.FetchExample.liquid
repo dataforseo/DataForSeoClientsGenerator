@@ -14,7 +14,7 @@ let api = new {{ operation.ApiName }}("https://{{ operation.Host }}", {
       {%- if operation.UserAgent != null -%}
       'User-Agent': '{{ operation.UserAgent }}',
       {%- endif -%}
-      {%- if operation.ForTests != null -%}
+      {%- if operation.ForTests -%}
       'X-Sandbox': 'allow',
       {%- endif -%}
     }

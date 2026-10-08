@@ -18,6 +18,16 @@ Every API endpoint is one async method; every request/response body is one DTO c
 
 The client is generated from an OpenAPI spec and is very large (thousands of DTO classes, `Api/*.cs` files of several hundred KB). Never open files whole. Derive names with the rules below and use targeted search (grep) only to confirm them.
 
+## Knowledge base: start here
+
+`knowledge-base/` (next to this file) has one Markdown file per API section, i.e. per property of `DataForSeoClient`. Each file explains what data the section provides and when to use another section instead, gives ready-to-run examples and lists every endpoint with its method name. Open only the file of the section you need: it is much cheaper than searching the generated code.
+
+| API class | Use it for |
+|---|---|
+{%- for api in Apis -%}
+| [`{{ api.ApiName }}`]({{ api.RelativePath }}) | {{ api.Summary }} |
+{%- endfor -%}
+
 ## Layout
 
 Source code (git repository):
@@ -28,11 +38,10 @@ Api/<Section>Api.cs                 one class per API section, one method per en
 Models/                             shared/nested DTOs, polymorphic items, ApiException
 Models/Requests/*RequestInfo.cs     request bodies
 Models/Responses/*ResponseInfo.cs   top-level responses
+knowledge-base/<Section>Api.md      per-section guide with examples (see above)
 ```
 
-NuGet package (`~/.nuget/packages/dataforseo.client/<version>/`): `README.md`, `SKILL.md`, `lib/<tfm>/DataForSeo.Client.dll` and `lib/<tfm>/DataForSeo.Client.xml`. The package has no source code; the XML documentation file contains the description of every DTO property.
-
-Sections (properties of `DataForSeoClient`, the `Api/` folder is the source of truth): `SerpApi`, `KeywordsDataApi`, `DataforseoLabsApi`, `DomainAnalyticsApi`, `BacklinksApi`, `OnPageApi`, `ContentAnalysisApi`, `AiOptimizationApi`, `MerchantApi`, `AppDataApi`, `BusinessDataApi`, `AppendixApi`.
+NuGet package (`~/.nuget/packages/dataforseo.client/<version>/`): `README.md`, `SKILL.md`, `knowledge-base/`, `lib/<tfm>/DataForSeo.Client.dll` and `lib/<tfm>/DataForSeo.Client.xml`. The package has no source code; the XML documentation file contains the description of every DTO property.
 
 ## Naming rules (derive names instead of searching)
 
@@ -179,6 +188,6 @@ Non-200 HTTP responses and deserialization failures throw `DataForSeo.Client.Mod
 
 ## External documentation (last resort)
 
-Use https://dataforseo.com/llms.txt only when this file or the generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
+Use https://dataforseo.com/llms.txt only when this file, the knowledge base or the generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
 
 `llms.txt` is a large (~200 KB) index of links to per-endpoint Markdown pages (`https://docs.dataforseo.com/v3/...md`). Do not read it whole: search it for the endpoint path or name and fetch only the linked page.

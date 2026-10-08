@@ -1,0 +1,33 @@
+# {{ ApiName }}
+
+Knowledge base for `{{ ApiName }}` (`dataforseo_client.api.{{ ApiName | snakecase }}`) of the DataForSEO Python client. Naming rules, the response envelope, polymorphic items and errors are described in [SKILL.md](../SKILL.md).
+
+{{ Description }}
+{% if Examples.size > 0 %}
+## Examples
+
+Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password.
+{% for operation in Examples %}
+### {{ forloop.index }}. {{ operation.OperationName }}
+
+`{{ operation.HttpMethod }} {{ operation.Path }}`
+
+```python
+from dataforseo_client import configuration as dfs_config, api_client as dfs_api_provider
+from dataforseo_client.api.{{ operation.ApiName | snakecase }} import {{ operation.ApiName }}
+{%- if operation.HttpMethod == "POST" -%}
+from dataforseo_client.models.{{ operation.RequestType.SourceType | snakecase }} import {{ operation.RequestType.SourceType }}
+{%- endif -%}
+
+{% template Part.FetchExample %}
+```
+{% endfor %}{% endif %}
+## Endpoints
+
+All methods of `{{ ApiName }}`. Request and response model names are derived from the path (see SKILL.md).
+
+| Method | HTTP | Path |
+|---|---|---|
+{%- for operation in Operations -%}
+| `{{ operation.OperationName }}` | {{ operation.HttpMethod }} | `{{ operation.Path }}` |
+{%- endfor -%}

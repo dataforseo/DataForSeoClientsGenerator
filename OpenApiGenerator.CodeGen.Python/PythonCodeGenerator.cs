@@ -35,16 +35,35 @@ public class PythonCodeGenerator : BaseCodeGenerator
                 LiquidDocumentationApiBinding => "Documentation.API",
                 LiquidDocumentationDtoBinding => "Documentation.DTO",
                 LiquidApiTestsBinding => "Test.API",
+                LiquidKnowledgeBaseApiBinding => "KnowledgeBase.API",
+                LiquidKnowledgeBaseSkillBinding => "KnowledgeBase.Skill",
             };
             
+            var code = _factory.CreateTemplate(LiquidConfig.Create(template, binding)).Render();
             result.Add(new()
             {
-                Code = _factory.CreateTemplate(LiquidConfig.Create(template, binding)).Render(),
+                Code = code,
                 FilePath = binding.FilePath,
             });
+
+            // pip installs only the package folder, so SKILL.md and knowledge-base are also shipped inside it
+            if (binding is LiquidKnowledgeBaseApiBinding or LiquidKnowledgeBaseSkillBinding)
+            {
+                result.Add(new()
+                {
+                    Code = code,
+                    FilePath = GetPackageCopyPath(binding.FilePath),
+                });
+            }
         }
         
         return result;
+    }
+
+    private string GetPackageCopyPath(string filePath)
+    {
+        var srcRoot = Path.Combine(Settings.RootFilePath, "src");
+        return Path.Combine(srcRoot, Settings.RootNamespace, Path.GetRelativePath(srcRoot, filePath));
     }
 
     private ICollection<CodeArtifact> GetDefaultArtifacts()

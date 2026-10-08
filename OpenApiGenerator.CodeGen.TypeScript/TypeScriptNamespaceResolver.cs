@@ -81,6 +81,16 @@ public class TypeScriptNamespaceResolver : NamespaceResolver
                 binding.FilePath = Path.Combine(root, file);
                 return binding.FilePath;
             }
+            case LiquidKnowledgeBaseApiBinding:
+            {
+                binding.FilePath = Path.Combine(root, "knowledge-base", $"{binding.ClassName}.md");
+                return binding.FilePath;
+            }
+            case LiquidKnowledgeBaseSkillBinding:
+            {
+                binding.FilePath = Path.Combine(root, "SKILL.md");
+                return binding.FilePath;
+            }
             case TypeScriptIndexBinding indexFile:
             {
                 var typesFilePathList = indexFile.Types

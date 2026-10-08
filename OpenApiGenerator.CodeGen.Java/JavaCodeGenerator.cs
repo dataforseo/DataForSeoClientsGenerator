@@ -37,6 +37,8 @@ public class JavaCodeGenerator : BaseCodeGenerator
                 LiquidDocumentationApiBinding => "Documentation.API",
                 LiquidDocumentationDtoBinding => "Documentation.DTO",
                 LiquidApiTestsBinding => "Test.API",
+                LiquidKnowledgeBaseApiBinding => "KnowledgeBase.API",
+                LiquidKnowledgeBaseSkillBinding => "KnowledgeBase.Skill",
                 _ => throw new ArgumentOutOfRangeException(nameof(bind))
             };
             

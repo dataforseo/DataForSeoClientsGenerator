@@ -1,0 +1,33 @@
+# {{ ApiName }}
+
+Knowledge base for `dfsClient.{{ ApiName }}` of the DataForSEO C# client. Naming rules, the response envelope, polymorphic items and errors are described in [SKILL.md](../SKILL.md).
+
+{{ Description }}
+{% if Examples.size > 0 %}
+## Examples
+
+Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password. Every example needs:
+
+```csharp
+using DataForSeo.Client;
+using DataForSeo.Client.Models;
+using DataForSeo.Client.Models.Requests;
+```
+{% for operation in Examples %}
+### {{ forloop.index }}. {{ operation.OperationName }}Async
+
+`{{ operation.HttpMethod }} {{ operation.Path }}`
+
+```csharp
+{% template Part.FetchExample %}
+```
+{% endfor %}{% endif %}
+## Endpoints
+
+All methods of `{{ ApiName }}`. Request and response DTO names are derived from the path (see SKILL.md).
+
+| Method | HTTP | Path |
+|---|---|---|
+{%- for operation in Operations -%}
+| `{{ operation.OperationName }}Async` | {{ operation.HttpMethod }} | `{{ operation.Path }}` |
+{%- endfor -%}

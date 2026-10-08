@@ -41,6 +41,8 @@ public class CSharpCodeGenerator : BaseCodeGenerator
                 LiquidDocumentationApiBinding => "Documentation.API",
                 LiquidDocumentationDtoBinding => "Documentation.DTO",
                 LiquidApiTestsBinding => "Test.API",
+                LiquidKnowledgeBaseApiBinding => "KnowledgeBase.API",
+                LiquidKnowledgeBaseSkillBinding => "KnowledgeBase.Skill",
                 _ => null
             };
 

@@ -1,0 +1,29 @@
+# {{ ApiName }}
+
+Knowledge base for `{{ ApiName }}` of the DataForSEO TypeScript client. Naming rules, the response envelope, polymorphic items and errors are described in [SKILL.md](../SKILL.md).
+
+{{ Description }}
+{% if Examples.size > 0 %}
+## Examples
+
+Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password. The examples use top-level `await` (ES module) and the global `fetch` (Node 18+ or a browser).
+{% for operation in Examples %}
+### {{ forloop.index }}. {{ operation.OperationName }}
+
+`{{ operation.HttpMethod }} {{ operation.Path }}`
+
+```typescript
+import {{ "{" }} {{ operation.ApiName }}{% if operation.HttpMethod == "POST" %}, {{ operation.RequestType.SourceType }}{% endif %} {{ "}" }} from "dataforseo-client";
+
+{% template Part.FetchExample %}
+```
+{% endfor %}{% endif %}
+## Endpoints
+
+All methods of `{{ ApiName }}`. Request and response model names are derived from the path (see SKILL.md).
+
+| Method | HTTP | Path |
+|---|---|---|
+{%- for operation in Operations -%}
+| `{{ operation.OperationName }}` | {{ operation.HttpMethod }} | `{{ operation.Path }}` |
+{%- endfor -%}

@@ -16,4 +16,9 @@
       <ProjectReference Include="..\OpenApiGenerator.Utils\OpenApiGenerator.Utils.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="KnowledgeBase\*.md" />
+      <EmbeddedResource Include="KnowledgeBase\*.md" />
+    </ItemGroup>
+
 </Project>

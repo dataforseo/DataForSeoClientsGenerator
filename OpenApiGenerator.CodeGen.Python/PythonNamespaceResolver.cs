@@ -77,6 +77,16 @@ public class PythonNamespaceResolver : NamespaceResolver
                 binding.FilePath = Path.Combine(root, file);
                 return binding.FilePath;
             }
+            case LiquidKnowledgeBaseApiBinding:
+            {
+                binding.FilePath = Path.Combine(root, "src", "knowledge-base", $"{className}.md");
+                return binding.FilePath;
+            }
+            case LiquidKnowledgeBaseSkillBinding:
+            {
+                binding.FilePath = Path.Combine(root, "src", "SKILL.md");
+                return binding.FilePath;
+            }
             case LiquidResourceFileBinding:
             {
                 root = Path.Combine(root, binding.FilePath);

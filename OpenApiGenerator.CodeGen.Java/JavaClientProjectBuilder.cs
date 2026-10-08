@@ -17,7 +17,6 @@ public class JavaClientProjectBuilder
             // ["pom.xml"] = root,
             ["junit-platform.properties"] = Path.Combine(root, "src", "test", "resources"),
             ["README.md"] = root,
-            ["SKILL.md"] = root,
         };
     }
 

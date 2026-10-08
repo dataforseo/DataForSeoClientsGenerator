@@ -17,19 +17,28 @@ Every API endpoint is one method; every request/response body is one model class
 
 The client is generated from an OpenAPI spec and is very large (thousands of model files, `api/*_api.py` files up to ~1 MB, very long field descriptions in every model). Never open files whole. Derive names with the rules below and use targeted search (grep) only to confirm them.
 
+## Knowledge base: start here
+
+`knowledge-base/` (next to this file) has one Markdown file per API section, i.e. per class in `api/`. Each file explains what data the section provides and when to use another section instead, gives ready-to-run examples and lists every endpoint with its method name. Open only the file of the section you need: it is much cheaper than searching the generated code.
+
+| API class | Use it for |
+|---|---|
+{%- for api in Apis -%}
+| [`{{ api.ApiName }}`]({{ api.RelativePath }}) | {{ api.Summary }} |
+{%- endfor -%}
+
 ## Layout
 
-Paths are relative to the `dataforseo_client` package (a top-level folder in the repository; after `pip install` it is `site-packages/dataforseo_client/`, where a copy of this file also lives):
+Paths are relative to the `dataforseo_client` package (a top-level folder in the repository; after `pip install` it is `site-packages/dataforseo_client/`, where copies of this file and of `knowledge-base/` also live):
 
 ```
-configuration.py           Configuration (credentials, host, proxy, ssl, retries)
-api_client.py              ApiClient (HTTP transport, context manager)
-exceptions.py              ApiException and subclasses
-api/<section>_api.py       one class per API section, one method per endpoint
-models/<class_name>.py     one pydantic model per file (snake_case file, PascalCase class)
+configuration.py                 Configuration (credentials, host, proxy, ssl, retries)
+api_client.py                    ApiClient (HTTP transport, context manager)
+exceptions.py                    ApiException and subclasses
+api/<section>_api.py             one class per API section, one method per endpoint
+models/<class_name>.py           one pydantic model per file (snake_case file, PascalCase class)
+knowledge-base/<section>_api.md  per-section guide with examples (see above)
 ```
-
-Sections (the `api/` folder is the source of truth): `SerpApi`, `KeywordsDataApi`, `DataforseoLabsApi`, `DomainAnalyticsApi`, `BacklinksApi`, `OnPageApi`, `ContentAnalysisApi`, `AiOptimizationApi`, `MerchantApi`, `AppDataApi`, `BusinessDataApi`, `AppendixApi`.
 
 ## Naming rules (derive names instead of searching)
 
@@ -188,6 +197,6 @@ Lists like `items` are typed as a base class (e.g. `BaseSerpApiElementItem`) and
 
 ## External documentation (last resort)
 
-Use https://dataforseo.com/llms.txt only when this file or generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
+Use https://dataforseo.com/llms.txt only when this file, the knowledge base or generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
 
 `llms.txt` is a large (~200 KB) index of links to per-endpoint Markdown pages (`https://docs.dataforseo.com/v3/...md`). Do not read it whole: search it for the endpoint path or name and fetch only the linked page.

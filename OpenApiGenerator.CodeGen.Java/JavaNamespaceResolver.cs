@@ -77,6 +77,16 @@ public class JavaNamespaceResolver : NamespaceResolver
                 binding.FilePath = Path.Combine(root, file);
                 return binding.FilePath;
             }
+            case LiquidKnowledgeBaseApiBinding:
+            {
+                binding.FilePath = Path.Combine(root, "knowledge-base", $"{binding.ClassName}.md");
+                return binding.FilePath;
+            }
+            case LiquidKnowledgeBaseSkillBinding:
+            {
+                binding.FilePath = Path.Combine(root, "SKILL.md");
+                return binding.FilePath;
+            }
             case LiquidResourceFileBinding resourceFileBinding:
             {
                 root = Path.Combine(root, resourceFileBinding.FilePath ?? "");

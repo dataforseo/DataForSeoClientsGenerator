@@ -18,20 +18,29 @@ Every API endpoint is one method returning a Promise; every request/response bod
 
 The client is generated from an OpenAPI spec and is very large (thousands of model files, `api/*Api.ts` files of several hundred KB). Never open files whole. Derive names with the rules below and use targeted search (grep) only to confirm them.
 
+## Knowledge base: start here
+
+`knowledge-base/` (next to this file) has one Markdown file per API section, i.e. per API class. Each file explains what data the section provides and when to use another section instead, gives ready-to-run examples and lists every endpoint with its method name. Open only the file of the section you need: it is much cheaper than searching the generated code.
+
+| API class | Use it for |
+|---|---|
+{%- for api in Apis -%}
+| [`{{ api.ApiName }}`]({{ api.RelativePath }}) | {{ api.Summary }} |
+{%- endfor -%}
+
 ## Layout
 
 Source code (git repository):
 
 ```
-src/index.ts                 re-exports every API class and model
-src/api/<Section>Api.ts      one class per API section, one method per endpoint
-src/models/<ClassName>.ts    one model class + I<ClassName> interface per file
-src/models/Base*Item.ts      polymorphic base class AND all its subclasses in one file
+src/index.ts                     re-exports every API class and model
+src/api/<Section>Api.ts          one class per API section, one method per endpoint
+src/models/<ClassName>.ts        one model class + I<ClassName> interface per file
+src/models/Base*Item.ts          polymorphic base class AND all its subclasses in one file
+knowledge-base/<Section>Api.md   per-section guide with examples (see above)
 ```
 
-npm package (`node_modules/dataforseo-client/`): `README.md`, `SKILL.md`, `package.json` and the compiled builds `dist/esm/` and `dist/cjs/` with the same `api/` and `models/` structure. Search the `.d.ts` files there: they contain all signatures and the JSDoc descriptions of model fields.
-
-Sections (the `src/api/` folder is the source of truth): `SerpApi`, `KeywordsDataApi`, `DataforseoLabsApi`, `DomainAnalyticsApi`, `BacklinksApi`, `OnPageApi`, `ContentAnalysisApi`, `AiOptimizationApi`, `MerchantApi`, `AppDataApi`, `BusinessDataApi`, `AppendixApi`.
+npm package (`node_modules/dataforseo-client/`): `README.md`, `SKILL.md`, `knowledge-base/`, `package.json` and the compiled builds `dist/esm/` and `dist/cjs/` with the same `api/` and `models/` structure. Search the `.d.ts` files there: they contain all signatures and the JSDoc descriptions of model fields.
 
 ## Naming rules (derive names instead of searching)
 
@@ -215,6 +224,6 @@ Non-200/204 HTTP responses reject with an `ApiException`-like object: `{ message
 
 ## External documentation (last resort)
 
-Use https://dataforseo.com/llms.txt only when this file or generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
+Use https://dataforseo.com/llms.txt only when this file, the knowledge base or generated code do not answer the question (for example pricing, account limits or endpoint behaviour that is not described locally). Everything needed to write client code is already in this library.
 
 `llms.txt` is a large (~200 KB) index of links to per-endpoint Markdown pages (`https://docs.dataforseo.com/v3/...md`). Do not read it whole: search it for the endpoint path or name and fetch only the linked page.

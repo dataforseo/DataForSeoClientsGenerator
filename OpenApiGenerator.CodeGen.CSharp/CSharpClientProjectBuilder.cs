@@ -18,7 +18,6 @@ public class CSharpClientProjectBuilder
             ["JsonInheritanceAttribute.cs"] = Path.Combine(root, "src", "Models"),
             ["JsonInheritanceConverter.cs"] = Path.Combine(root, "src", "Models"),
             ["README.md"] = Path.Combine(root, "src"),
-            ["SKILL.md"] = Path.Combine(root, "src"),
             ["ClientTestsProject.csproj"] = Path.Combine(root, "tests"),
             ["TestHelper.cs"] = Path.Combine(root, "tests"),
         };

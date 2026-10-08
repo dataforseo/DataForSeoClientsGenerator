@@ -78,6 +78,8 @@ public class TypeScriptCodeGenerator : BaseCodeGenerator
                     LiquidDocumentationApiBinding => "Documentation.API",
                     LiquidDocumentationDtoBinding  => "Documentation.DTO",
                     LiquidApiTestsBinding => "Test.API",
+                    LiquidKnowledgeBaseApiBinding => "KnowledgeBase.API",
+                    LiquidKnowledgeBaseSkillBinding => "KnowledgeBase.Skill",
                 };
             
                 result.Add(new()

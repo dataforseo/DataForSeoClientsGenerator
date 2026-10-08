@@ -1,0 +1,38 @@
+# {{ ApiName }}
+
+Knowledge base for `io.github.dataforseo.client.api.{{ ApiName }}` of the DataForSEO Java client. Naming rules, the response envelope, polymorphic items and errors are described in [SKILL.md](../SKILL.md).
+
+{{ Description }}
+{% if Examples.size > 0 %}
+## Examples
+
+Generated from the API specification in the same way as the client tests. Replace `USERNAME` / `PASSWORD` with your API login and password. Every example is a method body that throws `ApiException` and needs:
+
+```java
+import io.github.dataforseo.client.ApiClient;
+import io.github.dataforseo.client.ApiException;
+import io.github.dataforseo.client.Configuration;
+import io.github.dataforseo.client.auth.HttpBasicAuth;
+import io.github.dataforseo.client.api.*;
+import io.github.dataforseo.client.model.*;
+import java.util.List;
+import java.util.Map;
+```
+{% for operation in Examples %}
+### {{ forloop.index }}. {{ operation.OperationName }}
+
+`{{ operation.HttpMethod }} {{ operation.Path }}`
+
+```java
+{% template Part.FetchExample %}
+```
+{% endfor %}{% endif %}
+## Endpoints
+
+All methods of `{{ ApiName }}`. Request and response model names are derived from the path (see SKILL.md).
+
+| Method | HTTP | Path |
+|---|---|---|
+{%- for operation in Operations -%}
+| `{{ operation.OperationName }}` | {{ operation.HttpMethod }} | `{{ operation.Path }}` |
+{%- endfor -%}

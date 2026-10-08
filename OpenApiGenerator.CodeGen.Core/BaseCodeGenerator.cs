@@ -24,6 +24,7 @@ public abstract class BaseCodeGenerator
         var pool = new List<LiquidBinding>();
         var dtoBindings = new List<LiquidDtoBinding>();
         var apiBindings = new List<LiquidApiBinding>();
+        var knowledgeBaseBindings = new List<LiquidKnowledgeBaseApiBinding>();
         foreach (var group in (Document.Paths ?? []).GroupBy(x => x.Value.Operations.Values.First().Tags.First().Name))
         {
             var apiName = Settings.ClassNameResolver.Resolve($"{group.Key} Api");
@@ -42,6 +43,17 @@ public abstract class BaseCodeGenerator
             };
             Settings.NamespaceResolver.ResolveNamespace(apiTestsBinding);
             Settings.NamespaceResolver.ResolveFilePath(apiTestsBinding);
+
+            var description = ReadKnowledgeBaseDescription(apiName);
+            var apiKnowledgeBaseBinding = new LiquidKnowledgeBaseApiBinding(apiName)
+            {
+                ApiName = apiName,
+                Description = description,
+                Summary = description?.Split("\n\n")[0].Replace("\n", " "),
+            };
+            Settings.NamespaceResolver.ResolveNamespace(apiKnowledgeBaseBinding);
+            Settings.NamespaceResolver.ResolveFilePath(apiKnowledgeBaseBinding);
+            var exampleCandidates = new List<(string Path, LiquidOperationBinding Operation)>();
 
             //enumerate api
             foreach (var (path, pathInfo) in group)
@@ -125,6 +137,8 @@ public abstract class BaseCodeGenerator
                     docOperationBinding.Login = "USERNAME";
                     docOperationBinding.Password = "PASSWORD";
                     apiDocBinding.Operations.Add(docOperationBinding);
+                    apiKnowledgeBaseBinding.Operations.Add(docOperationBinding);
+                    exampleCandidates.Add((path, docOperationBinding));
                     
                     var testOperationBinding = operationBinding.Clone();
                     testOperationBinding.Host = Settings.Sandbox.Host;
@@ -139,7 +153,13 @@ public abstract class BaseCodeGenerator
             apiBindings.Add(apiCodeBinding);
             pool.Add(apiDocBinding);
             pool.Add(apiTestsBinding);
+
+            apiKnowledgeBaseBinding.Examples = SelectKnowledgeBaseExamples(apiName, exampleCandidates);
+            knowledgeBaseBindings.Add(apiKnowledgeBaseBinding);
+            pool.Add(apiKnowledgeBaseBinding);
         }
+
+        pool.Add(CreateKnowledgeBaseSkillBinding(knowledgeBaseBindings));
 
         //process dto
         foreach (var (name, schema) in Document.Components.Schemas)
@@ -304,6 +324,96 @@ public abstract class BaseCodeGenerator
                 _ => null
             };
         }
+    }
+
+    private LiquidKnowledgeBaseSkillBinding CreateKnowledgeBaseSkillBinding(List<LiquidKnowledgeBaseApiBinding> apis)
+    {
+        var skillBinding = new LiquidKnowledgeBaseSkillBinding("SKILL")
+        {
+            Apis = apis
+        };
+        Settings.NamespaceResolver.ResolveNamespace(skillBinding);
+        Settings.NamespaceResolver.ResolveFilePath(skillBinding);
+
+        var skillDirectory = Path.GetDirectoryName(skillBinding.FilePath) ?? string.Empty;
+        foreach (var api in apis)
+            api.RelativePath = Path.GetRelativePath(skillDirectory, api.FilePath).Replace('\\', '/');
+
+        foreach (var configuredApi in Settings.KnowledgeBase?.Endpoints?.Keys ?? Enumerable.Empty<string>())
+        {
+            if (apis.All(x => !string.Equals(x.ApiName, configuredApi, StringComparison.OrdinalIgnoreCase)))
+                Console.WriteLine($"[KnowledgeBase] API '{configuredApi}' from the configuration is not found");
+        }
+
+        return skillBinding;
+    }
+
+    private List<LiquidOperationBinding> SelectKnowledgeBaseExamples(
+        string apiName,
+        List<(string Path, LiquidOperationBinding Operation)> candidates)
+    {
+        var endpoints = Settings.KnowledgeBase?.Endpoints?
+            .FirstOrDefault(x => string.Equals(x.Key, apiName, StringComparison.OrdinalIgnoreCase))
+            .Value;
+
+        if (endpoints is not { Count: > 0 })
+        {
+            Console.WriteLine($"[KnowledgeBase] no endpoints configured for '{apiName}', its knowledge-base file has no examples");
+            return [];
+        }
+
+        var examples = new List<LiquidOperationBinding>();
+        foreach (var endpoint in endpoints)
+        {
+            var path = NormalizeKnowledgeBaseEndpoint(endpoint);
+            if (path == null)
+            {
+                Console.WriteLine($"[KnowledgeBase] endpoint '{endpoint}' of '{apiName}' must be a path starting with '/' or an absolute URL");
+                continue;
+            }
+
+            var matches = candidates
+                .Where(x => string.Equals(x.Path.TrimEnd('/'), path, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.Operation)
+                .ToList();
+
+            if (matches.Count == 0)
+                Console.WriteLine($"[KnowledgeBase] endpoint '{endpoint}' is not found in '{apiName}'");
+
+            examples.AddRange(matches.Where(x => !examples.Contains(x)));
+        }
+
+        return examples;
+    }
+
+    private static string NormalizeKnowledgeBaseEndpoint(string endpoint)
+    {
+        var value = endpoint?.Trim();
+        if (string.IsNullOrEmpty(value))
+            return null;
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            value = Uri.UnescapeDataString(uri.AbsolutePath);
+
+        return value.StartsWith('/') ? value.TrimEnd('/') : null;
+    }
+
+    private static string ReadKnowledgeBaseDescription(string apiName)
+    {
+        var assembly = typeof(BaseCodeGenerator).Assembly;
+        var resourceSuffix = $".KnowledgeBase.{apiName}.md";
+        var resourceName = assembly.GetManifestResourceNames()
+            .FirstOrDefault(x => x.EndsWith(resourceSuffix, StringComparison.OrdinalIgnoreCase));
+        if (resourceName == null)
+        {
+            Console.WriteLine($"[KnowledgeBase] description 'KnowledgeBase/{apiName}.md' is not found");
+            return null;
+        }
+
+        using var stream = assembly.GetManifestResourceStream(resourceName)!;
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd().Replace("\r", "").Trim();
     }
 
     //setup depended on types without additional info about item
