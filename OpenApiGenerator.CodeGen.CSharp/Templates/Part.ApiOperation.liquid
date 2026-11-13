@@ -40,11 +40,7 @@ public virtual async Task<{{ operation.ResponseType.TypeName }}> {{ operation.Op
     }
 }
 {%- else -%}
-    {%- if operation.GetParameter != null -%}
-public virtual async Task<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}Async({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }})
-    {%- else -%}
-public virtual async Task<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}Async()
-    {%- endif -%}
+public virtual async Task<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}Async({% if operation.GetParameter != null %}{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}{% endif %}{% for parameter in operation.QueryParameters %}{% if operation.GetParameter != null or forloop.index > 1 %}, {% endif %}{{ parameter.Type.TypeName }} {{ parameter.JsonName | camelcase }} = null{% endfor %})
 {
     using (var request = new HttpRequestMessage())
     {
@@ -59,6 +55,15 @@ public virtual async Task<{{ operation.ResponseType.TypeName }}> {{ operation.Op
         {% endif %}
         ;
         urlBuilder.Append(path);
+        {%- if operation.HasQueryParameters -%}
+        var queryParameters = new List<string>();
+        {%- for parameter in operation.QueryParameters -%}
+        if ({{ parameter.JsonName | camelcase }} != null)
+            queryParameters.Add("{{ parameter.JsonName }}=" + Uri.EscapeDataString(ConvertToQueryValue({{ parameter.JsonName | camelcase }})));
+        {%- endfor -%}
+        if (queryParameters.Count > 0)
+            urlBuilder.Append('?').Append(string.Join("&", queryParameters));
+        {%- endif -%}
         var url = urlBuilder.ToString();
         request.RequestUri = new Uri(url, UriKind.RelativeOrAbsolute);
         using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))

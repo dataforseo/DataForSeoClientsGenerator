@@ -195,6 +195,9 @@ def {{ operation.OperationName }}(
     {%- if operation.GetParameter != null -%}
     {{ operation.GetParameter.Name }}: Annotated[{{ operation.GetParameter.Type.TypeName }}, Field(description="{{ operation.GetParameter.Description }}")],
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    {{ parameter.JsonName | snakecase }}: Optional[Annotated[{{ parameter.Type.TypeName }}, Field(description="{{ parameter.Description }}")]] = None,
+    {%- endfor -%}
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -213,6 +216,9 @@ def {{ operation.OperationName }}(
         {%- if operation.GetParameter != null -%}
         {{ operation.GetParameter.Name }}={{ operation.GetParameter.Name }},
         {%- endif -%}
+        {%- for parameter in operation.QueryParameters -%}
+        {{ parameter.JsonName | snakecase }}={{ parameter.JsonName | snakecase }},
+        {%- endfor -%}
         _request_auth=_request_auth,
         _content_type=_content_type,
         _headers=_headers,
@@ -238,6 +244,9 @@ def {{ operation.OperationName }}_with_http_info(
     {%- if operation.GetParameter != null -%}
     {{ operation.GetParameter.Name }}: Annotated[{{ operation.GetParameter.Type.TypeName }}, Field(description="{{ operation.GetParameter.Description }}")],
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    {{ parameter.JsonName | snakecase }}: Optional[Annotated[{{ parameter.Type.TypeName }}, Field(description="{{ parameter.Description }}")]] = None,
+    {%- endfor -%}
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -256,6 +265,9 @@ def {{ operation.OperationName }}_with_http_info(
         {%- if operation.GetParameter != null -%}
         {{ operation.GetParameter.Name }}={{ operation.GetParameter.Name }},
         {%- endif -%}
+        {%- for parameter in operation.QueryParameters -%}
+        {{ parameter.JsonName | snakecase }}={{ parameter.JsonName | snakecase }},
+        {%- endfor -%}
         _request_auth=_request_auth,
         _content_type=_content_type,
         _headers=_headers,
@@ -281,6 +293,9 @@ def {{ operation.OperationName }}_without_preload_content(
     {%- if operation.GetParameter != null -%}
     {{ operation.GetParameter.Name }}: Annotated[{{ operation.GetParameter.Type.TypeName }}, Field(description="{{ operation.GetParameter.Description }}")],
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    {{ parameter.JsonName | snakecase }}: Optional[Annotated[{{ parameter.Type.TypeName }}, Field(description="{{ parameter.Description }}")]] = None,
+    {%- endfor -%}
     _request_timeout: Union[
         None,
         Annotated[StrictFloat, Field(gt=0)],
@@ -299,6 +314,9 @@ def {{ operation.OperationName }}_without_preload_content(
         {%- if operation.GetParameter != null -%}
         {{ operation.GetParameter.Name }}={{ operation.GetParameter.Name }},
         {%- endif -%}
+        {%- for parameter in operation.QueryParameters -%}
+        {{ parameter.JsonName | snakecase }}={{ parameter.JsonName | snakecase }},
+        {%- endfor -%}
         _request_auth=_request_auth,
         _content_type=_content_type,
         _headers=_headers,
@@ -320,6 +338,9 @@ def _{{ operation.OperationName }}_serialize(
     {%- if operation.GetParameter != null -%}
     {{ operation.GetParameter.Name }},
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    {{ parameter.JsonName | snakecase }},
+    {%- endfor -%}
     _request_auth,
     _content_type,
     _headers,
@@ -342,6 +363,10 @@ def _{{ operation.OperationName }}_serialize(
     if {{ operation.GetParameter.Name }} is not None:
         _path_params['{{ operation.GetParameter.Name }}'] = {{ operation.GetParameter.Name }}
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    if {{ parameter.JsonName | snakecase }} is not None:
+        _query_params.append(('{{ parameter.JsonName }}', {{ parameter.JsonName | snakecase }}))
+    {%- endfor -%}
 
     if 'Accept' not in _header_params:
         _header_params['Accept'] = self.api_client.select_header_accept(

@@ -13,6 +13,9 @@ public class LiquidOperationBinding
     public ResolvedTypeInfo RequestType { get; set; }
     public LiquidDtoBinding RequestTypeBinding { get; set; }
     public LiquidPropertyBinding GetParameter { get; set; } 
+    /// <summary>Optional query parameters of a GET operation; <see cref="LiquidPropertyBinding.JsonName"/> is the query key.</summary>
+    public List<LiquidPropertyBinding> QueryParameters { get; set; } = [];
+    public bool HasQueryParameters => QueryParameters is { Count: > 0 };
     public List<LiquidPropertyBinding> Payload { get; set; }
     /// <summary>Model classes instantiated inside <see cref="Payload"/> example values (nested objects and polymorphic children).</summary>
     public List<string> ExampleTypes { get; set; } = [];
@@ -34,6 +37,7 @@ public class LiquidOperationBinding
             ResponseType = ResponseType?.Clone(),
             RequestType = RequestType?.Clone(),
             GetParameter = GetParameter?.Clone(),
+            QueryParameters = QueryParameters?.Select(x => x.Clone()).ToList(),
             Payload = Payload?.Select(x => x.Clone())?.ToList(),
             ExampleTypes = ExampleTypes?.ToList(),
             ApiName = ApiName,

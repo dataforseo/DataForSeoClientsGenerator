@@ -123,7 +123,8 @@ public abstract class BaseCodeGenerator
 
                     if (type == OperationType.Get)
                     {
-                        var parameter = operationInfo.Parameters.FirstOrDefault();
+                        var parameters = operationInfo.Parameters ?? [];
+                        var parameter = parameters.FirstOrDefault(x => x.In != ParameterLocation.Query);
                         if (parameter is not null)
                         {
                             parameter.Schema.Example = parameter.Example;
@@ -133,6 +134,18 @@ public abstract class BaseCodeGenerator
                                 Type = Settings.TypeResolver.Resolve(parameter.Schema)
                             };
                         }
+
+                        operationBinding.QueryParameters = parameters
+                            .Where(x => x.In == ParameterLocation.Query && x.Schema != null)
+                            .Select(x => new LiquidPropertyBinding()
+                            {
+                                Name = x.Name,
+                                JsonName = x.Name,
+                                Type = Settings.TypeResolver.Resolve(x.Schema),
+                                Description = x.Description?.Replace("\"", "'").Replace("\r", "").Replace("\n", " "),
+                                IsRequired = false,
+                            })
+                            .ToList();
                     }
                     
                     apiCodeBinding.Operations.Add(operationBinding);

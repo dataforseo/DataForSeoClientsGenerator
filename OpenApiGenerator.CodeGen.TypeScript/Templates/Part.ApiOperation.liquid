@@ -35,12 +35,16 @@ protected process{{ operation.OperationName | pascalcase }}(response: Response):
     return Promise.resolve<{{ operation.ResponseType.TypeName | pascalcase }} | null>(null as any);
 }
 {%- else -%}
-{{ operation.OperationName }}({%- if operation.GetParameter != null -%} {{ operation.GetParameter.Name }}: {{ operation.GetParameter.Type.TypeName }} {%- endif -%}): Promise<{{ operation.ResponseType.TypeName }} | null> {
-    let url_ = this.baseUrl + "{{ operation.Path }}";
-    url_ = url_.replace(/[?&]$/, "");
+{{ operation.OperationName }}({% if operation.GetParameter != null %}{{ operation.GetParameter.Name }}: {{ operation.GetParameter.Type.TypeName }}{% endif %}{% for parameter in operation.QueryParameters %}{% if operation.GetParameter != null or forloop.index > 1 %}, {% endif %}{{ parameter.JsonName | camelcase }}?: {{ parameter.Type.TypeName }} | null{% endfor %}): Promise<{{ operation.ResponseType.TypeName }} | null> {
+    let url_ = this.baseUrl + "{{ operation.Path }}{% if operation.HasQueryParameters %}?{% endif %}";
     {%- if operation.GetParameter != null -%}
     url_ = url_.replace("{{ "{" }}{{ operation.GetParameter.Name }}{{ "}" }}", encodeURIComponent("" + {{ operation.GetParameter.Name }}));
     {%- endif -%}
+    {%- for parameter in operation.QueryParameters -%}
+    if ({{ parameter.JsonName | camelcase }} !== undefined && {{ parameter.JsonName | camelcase }} !== null)
+        url_ += "{{ parameter.JsonName }}=" + encodeURIComponent("" + {{ parameter.JsonName | camelcase }}) + "&";
+    {%- endfor -%}
+    url_ = url_.replace(/[?&]$/, "");
     let options_: RequestInit = {
         method: "GET",
         headers: {

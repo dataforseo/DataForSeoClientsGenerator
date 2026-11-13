@@ -71,8 +71,11 @@ public okhttp3.Call {{ operation.OperationName }}Call({{ operation.RequestType.T
     }
 {% endif %}
 {% if operation.HttpMethod == "GET" %}
+{% capture get_signature %}{% if operation.GetParameter != null %}{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}{% endif %}{% for parameter in operation.QueryParameters %}{% if operation.GetParameter != null or forloop.index > 1 %}, {% endif %}{{ parameter.Type.TypeName }} {{ parameter.JsonName | camelcase }}{% endfor %}{% endcapture %}
+{% capture get_arguments %}{% if operation.GetParameter != null %}{{ operation.GetParameter.Name }}{% endif %}{% for parameter in operation.QueryParameters %}{% if operation.GetParameter != null or forloop.index > 1 %}, {% endif %}{{ parameter.JsonName | camelcase }}{% endfor %}{% endcapture %}
+{% capture get_separator %}{% if get_signature != "" %}, {% endif %}{% endcapture %}
 
-public okhttp3.Call {{ operation.OperationName }}Call({% if operation.GetParameter != null %} {{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, {% endif %} final ApiCallback _callback) throws ApiException {
+public okhttp3.Call {{ operation.OperationName }}Call({{ get_signature }}{{ get_separator }}final ApiCallback _callback) throws ApiException {
    String basePath = null;
    // Operation Servers
    String[] localBasePaths = new String[] {  };
@@ -100,6 +103,11 @@ public okhttp3.Call {{ operation.OperationName }}Call({% if operation.GetParamet
    Map<String, String> localVarHeaderParams = new HashMap<String, String>();
    Map<String, String> localVarCookieParams = new HashMap<String, String>();
    Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+   {%- for parameter in operation.QueryParameters -%}
+   if ({{ parameter.JsonName | camelcase }} != null) {
+       localVarQueryParams.addAll(localVarApiClient.parameterToPair("{{ parameter.JsonName }}", {{ parameter.JsonName | camelcase }}));
+   }
+   {%- endfor -%}
 
    final String[] localVarAccepts = {
        "application/json"
@@ -120,61 +128,52 @@ public okhttp3.Call {{ operation.OperationName }}Call({% if operation.GetParamet
    return localVarApiClient.buildCall(basePath, localVarPath, "GET", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
 }
 
-    {% if operation.GetParameter != null %}
 @SuppressWarnings("rawtypes")
-private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, final ApiCallback _callback) throws ApiException {
+private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall({{ get_signature }}{{ get_separator }}final ApiCallback _callback) throws ApiException {
+   {% if operation.GetParameter != null %}
    // verify the required parameter '{{ operation.GetParameter.Name }}' is set
    if ({{ operation.GetParameter.Name }} == null) {
        throw new ApiException("Missing the required parameter '{{ operation.GetParameter.Name }}' when calling {{ operation.OperationName }}(Async)");
    }
+   {% endif %}
 
-   return {{ operation.OperationName }}Call({{ operation.GetParameter.Name }}, _callback);
+   return {{ operation.OperationName }}Call({{ get_arguments }}{{ get_separator }}_callback);
 
 }
 
-public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}) throws ApiException {
-   ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo({{ operation.GetParameter.Name }});
+public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}({{ get_signature }}) throws ApiException {
+   ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo({{ get_arguments }});
    return localVarResp.getData();
 }
 
-public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}) throws ApiException {
-   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Name }}, null);
+public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo({{ get_signature }}) throws ApiException {
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ get_arguments }}{{ get_separator }}null);
    Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
    return localVarApiClient.execute(localVarCall, localVarReturnType);
 }
 
-public okhttp3.Call {{ operation.OperationName }}Async({{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}, final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
+public okhttp3.Call {{ operation.OperationName }}Async({{ get_signature }}{{ get_separator }}final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
 
-   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ operation.GetParameter.Name }}, _callback);
+   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall({{ get_arguments }}{{ get_separator }}_callback);
    Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
    localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
    return localVarCall;
 }
-    {% else %}
-@SuppressWarnings("rawtypes")
-private okhttp3.Call {{ operation.OperationName }}ValidateBeforeCall(final ApiCallback _callback) throws ApiException {
+    {% if operation.HasQueryParameters %}
+{% capture path_signature %}{% if operation.GetParameter != null %}{{ operation.GetParameter.Type.TypeName }} {{ operation.GetParameter.Name }}{% endif %}{% endcapture %}
+{% capture path_separator %}{% if operation.GetParameter != null %}, {% endif %}{% endcapture %}
+{% capture default_arguments %}{% if operation.GetParameter != null %}{{ operation.GetParameter.Name }}{% endif %}{% for parameter in operation.QueryParameters %}{% if operation.GetParameter != null or forloop.index > 1 %}, {% endif %}null{% endfor %}{% endcapture %}
 
-   return {{ operation.OperationName }}Call(_callback);
-
+public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}({{ path_signature }}) throws ApiException {
+   return {{ operation.OperationName }}({{ default_arguments }});
 }
 
-public {{ operation.ResponseType.TypeName }} {{ operation.OperationName }}() throws ApiException {
-   ApiResponse<{{ operation.ResponseType.TypeName }}> localVarResp = {{ operation.OperationName }}WithHttpInfo();
-   return localVarResp.getData();
+public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo({{ path_signature }}) throws ApiException {
+   return {{ operation.OperationName }}WithHttpInfo({{ default_arguments }});
 }
 
-public ApiResponse<{{ operation.ResponseType.TypeName }}> {{ operation.OperationName }}WithHttpInfo() throws ApiException {
-   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(null);
-   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
-   return localVarApiClient.execute(localVarCall, localVarReturnType);
-}
-
-public okhttp3.Call {{ operation.OperationName }}Async(final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
-
-   okhttp3.Call localVarCall = {{ operation.OperationName }}ValidateBeforeCall(_callback);
-   Type localVarReturnType = new TypeToken<{{ operation.ResponseType.TypeName }}>(){}.getType();
-   localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
-   return localVarCall;
+public okhttp3.Call {{ operation.OperationName }}Async({{ path_signature }}{{ path_separator }}final ApiCallback<{{ operation.ResponseType.TypeName }}> _callback) throws ApiException {
+   return {{ operation.OperationName }}Async({{ default_arguments }}, _callback);
 }
     {% endif %}
 {% endif %}
