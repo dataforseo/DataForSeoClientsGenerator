@@ -171,6 +171,18 @@ public abstract class TypeResolver
             Value = ExtractPrimitiveExample(example)
         };
     }
+
+    /// <summary>
+    /// YAML reader turns date-like strings into OpenApiDate/OpenApiDateTime.
+    /// Format the wall-clock value: date-only when the time part is midnight,
+    /// otherwise the full API datetime format; UTC suffix keeps DataForSEO happy.
+    /// </summary>
+    protected static string FormatDateExample(DateTimeOffset value)
+    {
+        return value.TimeOfDay == TimeSpan.Zero
+            ? value.ToString("yyyy-MM-dd")
+            : value.ToString("yyyy-MM-dd HH:mm:ss +00:00");
+    }
     
     protected abstract ResolvedTypeInfo ResolveArray(OpenApiSchema schema);
     protected abstract ResolvedTypeInfo ResolveReference(OpenApiSchema schema);

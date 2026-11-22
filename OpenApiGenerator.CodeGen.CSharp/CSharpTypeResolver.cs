@@ -95,6 +95,9 @@ public class CSharpTypeResolver : TypeResolver
         var res = schema switch
         {
             OpenApiString str => $"\"{ConversionUtilities.ConvertToStringLiteral(str.Value)}\"",
+            // reader parses yaml date-like strings into OpenApiDate/OpenApiDateTime
+            OpenApiDateTime dateTime => $"\"{FormatDateExample(dateTime.Value)}\"",
+            OpenApiDate date => $"\"{date.Value:yyyy-MM-dd}\"",
             OpenApiInteger integer => integer.Value.ToString(CultureInfo.InvariantCulture),
             OpenApiLong longValue => longValue.Value.ToString(CultureInfo.InvariantCulture),
             OpenApiFloat floatValue => floatValue.Value.ToString("R", CultureInfo.InvariantCulture) + "f",

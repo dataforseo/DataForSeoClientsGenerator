@@ -84,6 +84,9 @@ public class PythonTypeResolver : TypeResolver
         var res = schema switch
         {
             OpenApiString str => str.Value,
+            // reader parses yaml date-like strings into OpenApiDate/OpenApiDateTime
+            OpenApiDateTime dateTime => $"\"{FormatDateExample(dateTime.Value)}\"",
+            OpenApiDate date => $"\"{date.Value:yyyy-MM-dd}\"",
             OpenApiInteger integer => integer.Value.ToString(),
             OpenApiLong longValue => longValue.Value.ToString(),
             OpenApiFloat floatValue => floatValue.Value.ToString(),
